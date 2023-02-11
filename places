@@ -1,0 +1,22 @@
+;;; -*- coding: utf-8; mode: lisp-data -*-
+(("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-tools.el" . 1823)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-packages.el" . 806)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-completion.el" . 1343)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/evil-20230207.1932/evil-autoloads.el" . 3128)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/goto-chg-20220107.1733/goto-chg-autoloads.el" . 1978)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/back/elpa/pyim-20221107.41/pyim-cregexp.el" . 2686)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-ui.el" . 561)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-org.el" . 155)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/init.el" . 193)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-basic.el" . 33)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/"
+  (dired-filename . "c:/Users/hxc/AppData/Roaming/.emacs.d/lisp"))
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/"
+  (dired-filename . "c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-ui.el"))
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-funcs.el" . 1771)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/"
+  (dired-filename . "c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/archives"))
+ ("c:/Users/Public/"
+  (dired-filename . "c:/Users/Public/.."))
+ ("c:/Users/"
+  (dired-filename . "c:/Users/lionqu")))
