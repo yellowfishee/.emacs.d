@@ -1,4 +1,4 @@
-(global-linum-mode 1)
+(global-linum-mode 0)
 
 (setq inhibit-startup-screen t)
 
@@ -38,4 +38,8 @@
 (mode-line-inactive ((t (:height 0.9))))
   :init
   (doom-modeline-mode t))
+
+(setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode t)
+
 (provide 'init-ui)

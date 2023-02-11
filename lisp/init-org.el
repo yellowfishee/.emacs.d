@@ -3,7 +3,7 @@
 
 
 (use-package org
-  :pin melpa
+  :pin nongnu
   :ensure t
 )
 
