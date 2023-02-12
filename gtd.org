@@ -1,0 +1,26 @@
+* head1
+** head2
+*** head3
+**** head4
+
+** DONE 我的todo
+CLOSED: [2023-02-12 周日 02:01]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2023-02-12 周日 02:01]
+:END:
+
+;; C-c C-S +1d 表示每天都做
+;; org-set-properties reset check boxes 完成后自动清空
+* Daily routine [0%]
+SCHEDULED: <2023-02-13 周一 20:00 +1d>
+:PROPERTIES:
+:LAST_REPEAT: [2023-02-12 周日 02:32]
+:RESET_CHECK_BOXES: true
+:END:
+:LOGBOOK:
+- State "DONE"       from              [2023-02-12 周日 02:32]
+:END:
+ - [ ] export
+ - [ ] leetcode
+ - [ ] exercise
+ - [ ] coding

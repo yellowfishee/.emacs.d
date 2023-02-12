@@ -2,8 +2,9 @@
 
 
 
+;; 排除报错
 (use-package org
-  :pin nongnu
+  :pin melpa
   :ensure t
 )
 
@@ -20,6 +21,7 @@
 (setq org-log-done 'note)
 (setq org-log-into-drawer t)
 
+;; 只能识别下面的这个文件哦~
 (global-set-key (kbd "C-c a") 'org-agenda)
 (setq org-agenda-files '("~/gtd.org"))
 (setq org-agenda-span 'day)
@@ -40,7 +42,7 @@
 
 (use-package ox-hugo
   :ensure t   ;Auto-install the package from Melpa
-  :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+  :pin nongnu  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
   :after ox)
 
 (with-eval-after-load 'org-capture

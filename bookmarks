@@ -1,10 +1,10 @@
-;;;; Emacs Bookmark Format Version 1 ;;;; -*- coding: utf-8-emacs -*-
+;;;; Emacs Bookmark Format Version 1;;;; -*- coding: utf-8-emacs; mode: lisp-data -*-
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
 (("org-capture-last-stored"
- (filename . "c:/Users/lionqu/blog/all-blog.org")
- (front-context-string . "** TODO test-ano")
- (rear-context-string . "rt-mode)\n# End:\n")
- (position . 963))
+ (filename . "~/gtd.org")
+ (front-context-string . "** TODO [#B] 测试\n")
+ (rear-context-string . "2-12 周日 02:58]\n\n")
+ (position . 866))
 )
