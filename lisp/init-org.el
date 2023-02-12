@@ -42,7 +42,7 @@
 
 (use-package ox-hugo
   :ensure t   ;Auto-install the package from Melpa
-  :pin nongnu  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+  :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
   :after ox)
 
 (with-eval-after-load 'org-capture
@@ -67,7 +67,8 @@ See `org-capture-templates' for more information."
                      ;; It is assumed that below file is present in `org-directory'
                      ;; and that it has a "Blog Ideas" heading. It can even be a
                      ;; symlink pointing to the actual location of all-posts.org!
-                     (file+headline "c:/Users/lionqu/blog/all-blog.org" "Blog Ideas")
+                     (file+headline "e:/blog/all-blog.org" "Blog Ideas")
                      (function org-hugo-new-subtree-post-capture-template))))
 
 (provide 'init-org)
+

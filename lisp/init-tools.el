@@ -58,5 +58,34 @@ Other buffer group by `awesome-tab-get-group-name' with project name."
 ;; (keycast-mode t)
 
 
+;; 工具
+(use-package restart-emacs)
+
+;; (use-package org-download)
+;; ;;; org-download
+;; (require 'org-download)
+;; (setq org-download-screenshot-method "d:/Snipaste/Snipaste.exe snip")
+;; ; (setq org-download-method 'directory)
+;; (setq-default org-download-heading-lvl nil)
+;; (setq-default org-download-image-dir "./images")
+;; (defun dummy-org-download-annotate-function (link)
+;;   "")
+
+(use-package org-download
+    :bind ("C-S-y" . org-download-clipboard)
+    :config
+    (defun org-download-clipboard ()
+      "Save the captured image from clipboard to file, and insert into buffer. Or org-download-yank."
+      (interactive)
+      (let ((link "http://images2015.cnblogs.com/blog/717724/201703/717724-20170318145647104-177813066.jpg"))
+        (if (eq 0 (shell-command (format "\"c:/Program\sFiles/ImageMagick/convert.exe\" clipboard:myimage %s" link) "*screenshot2file*" "*screenshot2file*"))
+            (org-download-image link)
+          (org-download-yank)))))
+
+
+(setq org-download-annotate-function
+      #'dummy-org-download-annotate-function)
+
+
 
 (provide 'init-tools)

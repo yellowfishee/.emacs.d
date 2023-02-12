@@ -1,19 +1,32 @@
 ;;; -*- coding: utf-8; mode: lisp-data -*-
-(("c:/Users/86150/AppData/Roaming/gtd.org" . 651)
- ("e:/blog/config.toml" . 1450)
- ("e:/blog/content/posts/first_post.md" . 59)
- ("c:/Users/86150/AppData/Roaming/.emacs.d/bookmarks" . 251)
- ("c:/Users/86150/AppData/Roaming/.emacs.d/gtd.org" . 450)
- ("c:/Users/86150/AppData/Roaming/.emacs.d/lisp/init-org.el" . 424)
- ("c:/Users/86150/AppData/Roaming/.emacs.d/init.el" . 268)
- ("c:/Users/86150/AppData/Roaming/.emacs.d/lisp/init-packages.el" . 906)
- ("c:/Users/86150/AppData/Roaming/.emacs.d/lisp/init-keybindings.el" . 1279)
- ("c:/Users/86150/AppData/Roaming/.emacs.d/lisp/init-completion.el" . 219)
- ("c:/Users/86150/AppData/Roaming/.emacs.d/.gitignore" . 65)
- ("c:/Users/86150/AppData/Roaming/.emacs.d/lisp/init-basic.el" . 340)
- ("c:/Users/86150/AppData/Roaming/.emacs.d/lisp/init-ui.el" . 612)
- ("c:/Users/86150/AppData/Roaming/.emacs.d/elpa/monokai-theme-20220117.1244/monokai-theme-autoloads.el" . 578)
- ("c:/Users/86150/AppData/Roaming/.emacs.d/elpa/org-contrib-0.4.1/org-contrib-autoloads.el" . 19270)
+(("c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/org-download-20220906.1929/org-download.el" . 16168)
+ ("e:/emacsnote/learn.org" . 86)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-tools.el" . 2352)
+ ("e:/blog/" . 1257)
+ ("e:/blog/config.yaml" . 1710)
+ ("e:/blog/all-blog.org" . 529)
+ ("e:/emacsnote/"
+  (dired-filename . "e:/emacsnote/learn.org"))
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/org-contrib-0.4.1/org-screenshot.el" . 15744)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-completion.el" . 563)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/org-download-20220906.1929/org-download-autoloads.el" . 569)
+ ("e:/"
+  (dired-filename . "e:/aliDownLoad"))
+ ("e:/blog/content/post/second-blog.md" . 267)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/init.el" . 312)
+ ("e:/blog/archetypes/"
+  (dired-filename . "e:/blog/archetypes/.."))
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/"
+  (dired-filename . "c:/Users/hxc/AppData/Roaming/.emacs.d/lisp"))
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/"
+  (dired-filename . "c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-org.el"))
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-org.el" . 2306)
+ ("e:/blog/.dir-locals.el" . 54)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-funcs.el" . 118)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/restart-emacs-20201127.1425/restart-emacs-autoloads.el" . 1850)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/ox-hugo-20221028.1631/ox-hugo-autoloads.el" . 10518)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/tomelr-0.4.3/tomelr-autoloads.el" . 446)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-packages.el" . 907)
  ("c:/Users/Public/"
   (dired-filename . "c:/Users/Public/.."))
  ("c:/Users/"

@@ -48,6 +48,14 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
   (consult-directory-externally default-directory))
 
 
+;; 注释选中行
+(defun my-comment-or-uncomment-region (beg end &optional arg)  
+  (interactive (if (use-region-p)  
+                   (list (region-beginning) (region-end) nil)  
+                 (list (line-beginning-position)  
+                       (line-beginning-position 2))))  
+  (comment-or-uncomment-region beg end arg)  
+)  
 
 
 (provide 'init-funcs)

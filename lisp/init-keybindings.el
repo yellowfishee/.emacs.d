@@ -41,6 +41,7 @@
 (global-set-key (kbd "C-c p f") 'project-find-file)
 (global-set-key (kbd "C-c p s") 'consult-ripgrep)
 
-
+;; 注释选中行
+(global-set-key (kbd "C-c C-/") 'my-comment-or-uncomment-region)  
 
 (provide 'init-keybindings)

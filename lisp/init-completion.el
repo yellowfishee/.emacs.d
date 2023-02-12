@@ -30,7 +30,7 @@
 
 ;; vim 
 (use-package evil :ensure t)
-(evil-mode 1)
+(evil-mode 0)
 
 
 (setq prefix-help-command 'embark-prefix-help-command)
