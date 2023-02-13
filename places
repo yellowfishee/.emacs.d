@@ -1,5 +1,7 @@
 ;;; -*- coding: utf-8; mode: lisp-data -*-
-(("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-tree-sitter.el" . 158)
+(("c:/Users/hxc/AppData/Roaming/gtd.org" . 179)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-ui.el" . 944)
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-tree-sitter.el" . 158)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-magit.el" . 266)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/init.el" . 507)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/magit-20230211.1642/magit-autoloads.el" . 88509)
@@ -28,7 +30,6 @@
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-tools.el" . 103)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-funcs.el" . 2742)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-eaf.el" . 231)
- ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-ui.el" . 994)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-keybindings.el" . 403)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-posframe.el" . 181)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/lsp-ui-20230116.2024/lsp-ui-autoloads.el" . 2009)
