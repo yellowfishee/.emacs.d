@@ -30,7 +30,7 @@
 
 ;; vim 
 (use-package evil :ensure t)
-(evil-mode 0)
+(evil-mode 1)
 
 
 (setq prefix-help-command 'embark-prefix-help-command)
@@ -62,5 +62,10 @@
      '(progn
 	(require 'embark-consult)
 	(add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))))
+
+;; 文件管理
+(use-package dirvish)
+
+;; (use-package dashboard)
 
 (provide 'init-completion)

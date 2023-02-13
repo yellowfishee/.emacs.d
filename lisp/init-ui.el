@@ -42,4 +42,8 @@
 (setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode t)
 
+(use-package all-the-icons
+  :if (display-graphic-p))
+
+
 (provide 'init-ui)

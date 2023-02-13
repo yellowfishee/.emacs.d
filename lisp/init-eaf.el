@@ -1,0 +1,15 @@
+(add-to-list 'load-path "~/.emacs.d/site-lisp/emacs-application-framework/")
+(require 'eaf)
+(require 'eaf-browser)
+(require 'eaf-camera)
+(require 'eaf-pdf-viewer)
+(require 'eaf-demo)
+(require 'eaf-2048)
+(require 'eaf-org-previewer)
+
+(eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
+(eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
+(eaf-bind-key take_photo "p" eaf-camera-keybinding)
+(eaf-bind-key nil "M-q" eaf-browser-keybinding)
+
+(provide 'init-eaf)
