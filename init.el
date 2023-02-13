@@ -14,6 +14,7 @@
 (require 'init-dashboard)
 (require 'init-posframe)
 (require 'init-pyim)
+(require 'init-lsp)
 
 (setq custom-file (expand-file-name "~/.emacs.d/custom.el"))
 (load custom-file 'no-error 'no-message)

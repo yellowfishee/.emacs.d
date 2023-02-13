@@ -97,6 +97,7 @@ Other buffer group by `awesome-tab-get-group-name' with project name."
 (setq org-download-annotate-function
       #'dummy-org-download-annotate-function)
 
-
+(use-package ace-window
+  :bind (("M-o" . "ace-window)))
 
 (provide 'init-tools)
