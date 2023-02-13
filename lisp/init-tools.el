@@ -1,8 +1,8 @@
-(add-to-list 'load-path (expand-file-name "~/.emacs.d/awesome-tab"))
+;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/awesome-tab"))
 
-(require 'awesome-tab)
+;; (require 'awesome-tab)
 
-(awesome-tab-mode 0)
+;; (awesome-tab-mode 0)
 
 (defun awesome-tab-buffer-groups ()
 "`awesome-tab-buffer-groups' control buffers' group rules.

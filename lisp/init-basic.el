@@ -1,4 +1,3 @@
-
 (setq inhibit-startup-screen t)
 
 (server-mode 1)

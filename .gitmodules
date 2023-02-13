@@ -1,9 +1,0 @@
-[submodule "site-lisp/emacs-application-framework"]
-	path = site-lisp/emacs-application-framework
-	url = https://github.com/emacs-eaf/emacs-application-framework
-[submodule "elisp-tree-sitter"]
-	path = elisp-tree-sitter
-	url = https://github.com/emacs-tree-sitter/elisp-tree-sitter
-[submodule "site-lisp/elisp-tree-sitter"]
-	path = site-lisp/elisp-tree-sitter
-	url = https://github.com/emacs-tree-sitter/elisp-tree-sitter
