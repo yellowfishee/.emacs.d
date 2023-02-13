@@ -64,12 +64,18 @@ Other buffer group by `awesome-tab-get-group-name' with project name."
 (use-package org-download)
 ;;; org-download
 (require 'org-download)
+;; TODO 这里需要进行系统的判断
 (setq org-download-screenshot-method "d:/Snipaste/Snipaste.exe snip")
 ; (setq org-download-method 'directory)
 (setq-default org-download-heading-lvl nil)
 (setq-default org-download-image-dir "./images")
 (defun dummy-org-download-annotate-function (link)
   "")
+
+
+(global-set-key (kbd"C-M-a") 'org-download-screenshot)
+(global-set-key (kbd"C-M-p")  'org-download-clipboard)
+
 
 ;; (use-package org-download)
 ;; (require org-download)
