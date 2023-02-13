@@ -1,5 +1,8 @@
 ;;; -*- coding: utf-8; mode: lisp-data -*-
-(("c:/Users/hxc/AppData/Roaming/gtd.org" . 179)
+(("c:/Users/hxc/AppData/Roaming/.emacs.d/"
+  (dired-filename . "c:/Users/hxc/AppData/Roaming/.emacs.d/elpa"))
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/.gitmodules" . 421)
+ ("c:/Users/hxc/AppData/Roaming/gtd.org" . 179)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-ui.el" . 944)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-tree-sitter.el" . 158)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-magit.el" . 266)
@@ -73,8 +76,6 @@
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/dash-20221013.836/dash.el" . 1900)
  ("c:/tools/emacs/share/emacs/28.2/lisp/org/org.el" . 127416)
  ("c:/tools/emacs/share/emacs/28.2/etc/COPYING" . 288)
- ("c:/Users/hxc/AppData/Roaming/.emacs.d/"
-  (dired-filename . "c:/Users/hxc/AppData/Roaming/.emacs.d/lisp"))
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/gtd.org" . 252)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-completion.el" . 1349)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/elpa/dashboard-20230126.2032/dashboard-autoloads.el" . 900)
