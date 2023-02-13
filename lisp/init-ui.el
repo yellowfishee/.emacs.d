@@ -31,6 +31,9 @@
 (use-package doom-themes)
 (load-theme 'doom-one 1)
 
+(use-package gruvbox-theme)
+(load-theme 'gruvbox-dark-soft 1)
+
 (use-package doom-modeline
   :ensure t
   :custom-face

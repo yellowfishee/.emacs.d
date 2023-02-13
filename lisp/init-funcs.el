@@ -58,4 +58,27 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
 )  
 
 
+;; ;; 开启代理
+;; (defun +yefi/toggle-proxy()
+;;   (interactive)
+;;   (if (null url-proxy-services)
+;;       (progn
+;; 	(set q url-proxy-services
+;; 	     '(("http", "127.0.0.1:7890")
+;; 	       ("https", "127.0.0.1:7890")))
+;; 	(message "proxy started"))
+;;     (setq url-proxy-services nil)
+;;     (message "proxy closed")))
+
+(defun +yefi/toggle-proxy ()
+  (interactive)
+  (if (null url-proxy-services)
+      (progn
+        (setq url-proxy-services
+              '(("http" . "127.0.0.1:7890")
+                ("https" . "127.0.0.1:7890")))
+        (message "proxy started."))
+    (setq url-proxy-services nil)
+    (message "proxy closed.")))
+
 (provide 'init-funcs)

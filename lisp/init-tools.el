@@ -2,7 +2,7 @@
 
 (require 'awesome-tab)
 
-(awesome-tab-mode t)
+(awesome-tab-mode 0)
 
 (defun awesome-tab-buffer-groups ()
 "`awesome-tab-buffer-groups' control buffers' group rules.
@@ -74,7 +74,7 @@ Other buffer group by `awesome-tab-get-group-name' with project name."
 
 
 (global-set-key (kbd"C-M-a") 'org-download-screenshot)
-(global-set-key (kbd"C-M-p")  'org-download-clipboard)
+(global-set-key (kbd"C-M-p") 'org-download-clipboard)
 
 
 ;; (use-package org-download)
@@ -97,7 +97,7 @@ Other buffer group by `awesome-tab-get-group-name' with project name."
 (setq org-download-annotate-function
       #'dummy-org-download-annotate-function)
 
-(use-package ace-window
-  :bind (("M-o" . "ace-window)))
+(use-package ace-window 
+             :bind (("M-o" . 'ace-window)))
 
 (provide 'init-tools)
