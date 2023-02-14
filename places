@@ -1,8 +1,8 @@
 ;;; -*- coding: utf-8; mode: lisp-data -*-
 (("c:/Users/hxc/AppData/Roaming/.emacs.d/"
   (dired-filename . "c:/Users/hxc/AppData/Roaming/.emacs.d/elpa"))
+ ("c:/Users/hxc/AppData/Roaming/.emacs.d/READEME.md" . 119)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/.gitmodules" . 421)
- ("c:/Users/hxc/AppData/Roaming/gtd.org" . 179)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-ui.el" . 944)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-tree-sitter.el" . 158)
  ("c:/Users/hxc/AppData/Roaming/.emacs.d/lisp/init-magit.el" . 266)
