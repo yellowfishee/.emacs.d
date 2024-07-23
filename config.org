@@ -1,0 +1,1124 @@
+#+auto_tangle: t
+* config
+** basic config
+关于emacs gui的一些基础配置，这里的配置不牵扯另外的 =package=
+*** Variable
+some Variable
+#+begin_src emacs-lisp :tangle yes
+;; 主题 字体配置
+;; 识别系统类型
+(setq my/is-windows (eq system-type 'windows-nt)) ; Windows 系统
+(setq my/is-linux (eq system-type 'gnu/linux)) ; Linux 系统
+(setq my/is-manjaro (string-match "MANJARO" operating-system-release)) ; manjaro 系统
+(setq my/is-termux (string= system-configuration "aarch64-unknown-linux-android")) ; termux
+(setq my/is-userland (string= system-configuration "aarch64-unknown-linux-gnu")) ; userland
+;; 代表图形界面
+(setq my/is-terminal (not window-system))
+;; 让鼠标滚动更好用
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
+(setq mouse-wheel-progressive-speed nil)
+(setq my/enable-folding (not my/is-terminal))
+(setq default-frame-alist '((fullscreen . maximized))) ;; 全屏
+;; 禁止emacs写入自定义变量
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory)) 
+(defvar my/font-height 150)
+(defvar my/latex-preview-scale 1.3)
+#+end_src
+*** keybindings
+#+begin_src emacs-lisp :tangle yes
+(global-set-key (kbd "C-h C-f") 'find-function)
+(global-set-key (kbd "C-h C-v") 'find-variable)
+(global-set-key (kbd "C-h C-k") 'find-function-on-key)
+;; 通过设置符号系统，可以解决 org2md时出现的\r换行问题
+(setq-default buffer-file-coding-system 'utf-8-unix)
+(setq-default
+  ;; 禁用自动窗口垂直滚动
+  auto-window-vscroll nil
+  ;; 设置默认目录为用户的主目录
+  default-directory "~"
+  ;; 设置默认文本属性，包括行间距和行高
+  default-text-properties '(line-spacing 0 line-height 1.2)
+  ;; 设置窗口标题格式为缓冲区的名称
+  frame-title-format "%b"
+  ;; 当显示帮助窗口时，允许用户选择该窗口
+  help-window-select t
+  ;; 设置新创建的缓冲区的默认主要模式为 fundamental-mode
+  initial-major-mode 'fundamental-mode
+  ;; 禁用启动屏幕闪屏
+  inhibit-startup-screen t
+  ;; 允许在搜索期间移动光标
+  isearch-allow-motion t
+  ;; 允许惰性计数器用于搜索
+  isearch-lazy-count t
+  ;; 允许使用 `C-k` 删除整行
+  kill-whole-line t
+  ;; 在模式行上紧凑显示信息
+  mode-line-compact t
+  ;; 禁用备份文件的创建
+  make-backup-files nil
+  ;; 设置读取进程输出的最大值为 4MB
+  read-process-output-max (* 4 1024 1024)
+  ;; 在文件末尾强制添加换行符
+  require-final-newline t
+  ;; 设置滚动保守性为 1000
+  scroll-conservatively 1000
+  ;; 显示行尾的空格
+  show-trailing-whitespace t
+  ;; 设置系统时间的区域设置为 "C"
+  system-time-locale "C"
+  ;; 使用简短的回答
+  use-short-answers t)
+#+end_src
+
+*** function
+关于emacs界面的一些function的定义
+**** 设置字体大小
+#+begin_src emacs-lisp :tangle yes
+;; 设置字体大小
+(defun my/set-font-size ()
+  (interactive)
+  (cond (my/is-termux
+          (setq my/font-height 125
+                my/latex-preview-scale 1.25))
+        (t (pcase (display-pixel-height)
+              ((pred (> 999))
+              (setq my/font-height 130
+                    my/latex-preview-scale 1.3))
+              ((pred (> 1300))
+              (setq my/font-height 160
+                    my/latex-preview-scale 1.6))
+              (_ (setq my/font-height 180
+                      my/latex-preview-scale 1.8))))))
+#+end_src
+**** 设置字体
+#+begin_src emacs-lisp :tangle yes
+;;设置字体
+(defun my/set-font 
+    ()
+    (interactive)
+    (setq my/default-font "Intel One Mono") ;; fonts-firacode (apt) 或 ttf-fira-code (pacman)
+;;    (setq my/default-font "Fira Code")
+    (setq my/math-font "Latin Modern Math") ; texlive 字体
+    (setq my/chinese-font
+        (cond 
+            (my/is-termux "Roboto")
+            (my/is-manjaro "AR PL UKai CN") ;; ttf-arphic-ukai (pacman)
+;;            (my/is-linux "FZShengShiKaiShuS-DB-GB") ;; fonts-arphic-gkai00mp (apt)
+;;            (my/is-windows "FZShengShiKaiShuS-DB-GB")
+;;            (my/is-windows "LXGW Zhenkai")
+            (my/is-windows "Kaiti")
+            (t "Fira code")))
+    (setq my/variable-pitch-font
+        (cond 
+            (my/is-linux "Iosevka Aile") 
+            (my/is-windows  "Segoe Print")
+            (t "Fira Code")))
+    (setq my/fixed-pitch-font "JetBrains Mono") ;; fonts-jetbrains-mono (apt) 或 ttf-jetbrains-mono (pacman)
+
+    (if 
+        (find-font 
+            (font-spec :name my/default-font))
+        (set-face-attribute 'default nil :font my/default-font :height my/font-height)  ; 默认字体及字号.
+        (message 
+            (format "cannot find %s for the default font" my/default-font))
+        (set-face-attribute 'default nil :height my/font-height)) ; 找不到字体只设置字号
+
+    (if 
+        (find-font 
+            (font-spec :name my/variable-pitch-font))
+        (set-face-attribute 'variable-pitch nil :font my/variable-pitch-font :height my/font-height) ; 比例字体 
+        (message 
+            (format "cannot find %s for the variable pitch font"  my/variable-pitch-font)))
+
+    (if 
+        (find-font 
+            (font-spec :name my/fixed-pitch-font))
+        (set-face-attribute 'fixed-pitch nil :font my/fixed-pitch-font :height my/font-height) ; 等宽字体 
+        (message 
+            (format "cannot find %s for the fixed pitch font"  my/fixed-pitch-font)))
+
+    (unless my/is-terminal ; 非图形界面 set-fontset-font
+        (if 
+            (find-font 
+                (font-spec :name my/math-font))
+            (set-fontset-font "fontset-default" 'mathematical my/math-font) ; 数学符号默认字体
+            (message 
+                (format "cannot find %s for the math font"  my/math-font)))
+        (if 
+            (find-font 
+                (font-spec :name my/chinese-font))
+            (set-fontset-font "fontset-default" 'han my/chinese-font) ; 中文默认字体
+            (message 
+                (format "cannot find %s for the chinese font"  my/chinese-font))))
+
+    (setq inhibit-compacting-font-caches t) ; 汉字及 Unicode 显示问题
+    (setq auto-window-vscroll nil)) ; 不根据行高做上下滚动调整
+
+(defun my/set-org-font ()
+  (interactive)
+  ;; org 字体美化
+  (require 'org-faces)
+  ;; 标题字体大小优化
+  (set-face-attribute 'org-document-title nil :weight 'bold :height 1.2)
+  (dolist (face '((org-level-1 . 1.05)
+                  (org-level-2 . 1.0)
+                  (org-level-3 . 1.0)
+                  (org-level-4 . 1.0)
+                  (org-level-5 . 1.0)
+                  (org-level-6 . 1.0)
+                  (org-level-7 . 1.0)
+                  (org-level-8 . 1.0)))
+    (set-face-attribute (car face) nil :weight 'medium :height (cdr face)))
+  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-block-begin-line nil :foreground nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-block-end-line nil :foreground nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-property-value nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil  :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-drawer nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-document-info-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+  (setq org-fontify-quote-and-verse-blocks t) ; 启用 org-qoute 变量为 quote 设置不同的字体
+  (set-face-attribute 'org-quote nil :inherit 'fixed-pitch)
+  (require 'org-indent)
+  (set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch)))
+#+end_src
+**** 设置行号
+#+begin_src emacs-lisp :tangle yes
+(defun my/set-line-number 
+    ()
+    (interactive)
+    (column-number-mode) ; 显示列号
+    (visual-line-mode 1) ; 自动断行
+    (global-display-line-numbers-mode t) ; 显示行号
+;;不显示行号的模式:
+    (dolist 
+        (mode '
+            (term-mode-hook
+helpful-mode-hook
+eshell-mode-hook
+pdf-view-mode-hook
+eww-mode-hook))
+        (add-hook mode 
+            (lambda 
+                () 
+                (display-line-numbers-mode 0))))
+
+    (setq display-line-numbers-type 'visual) ; 行号考虑自动断行
+;;行号强制用等宽字体
+    (unless 
+        (or my/is-terminal 
+            (not 
+                (find-font 
+                    (font-spec :name my/default-font))))
+        (set-face-attribute 'line-number nil :font my/default-font :height 0.9) 
+        (set-face-attribute 'line-number-current-line nil :font my/default-font :height 0.9)))
+#+end_src
+**** 设置窗口
+#+begin_src emacs-lisp :tangle yes
+(defun my/set-window 
+    ()
+    (interactive)
+    (unless my/is-termux ; 终端下以下设置不可用
+        (tool-bar-mode 0) ; 禁用工具栏
+        (scroll-bar-mode 0)) ; 禁用滚动条
+    (menu-bar-mode 0) ; 禁用菜单栏
+)
+#+end_src
+*** function call
+#+begin_src emacs-lisp :tangle yes
+;; (my/set-font-size)
+(my/set-font)
+(my/set-line-number)
+(my/set-window)
+#+end_src
+*** use-package
+包管理配置~
+#+begin_src emacs-lisp :tangle yes
+(use-package package
+:hook after-init-hook
+:config
+    (add-to-list 'package-archives '
+        ("melpa" . "https://melpa.org/packages/"))
+    (unless 
+        (bound-and-true-p package--initialized)
+        (package-initialize)))
+(require 'use-package-ensure)
+(setq use-package-always-ensure t)
+(setq use-pakcage-always-defer t)
+;;Setup`use-package'
+(unless 
+    (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+#+end_src
+*** no-littering
+可以保证临时存储文件的位置，用来保证配置的整洁
+#+begin_src emacs-lisp :tangle yes
+(use-package no-littering
+:demand t
+:custom
+    (auto-save-file-name-transforms `
+        (
+            (".*" ,
+                (no-littering-expand-var-file-name "auto-save/") t)))) ; 设置自动保存文件目录
+#+end_src
+*** recentf
+临时文件
+#+begin_src emacs-lisp :tangle yes
+(use-package recentf
+:after no-littering
+:demand t
+:custom
+    (recentf-exclude '
+        (no-littering-var-directory
+no-littering-etc-directory));屏蔽临时文件
+    (recentf-max-menu-items 25)
+    (recentf-max-saved-items 25)
+:bind
+    ("C-x C-r" . 'recentf-open-files)
+:config
+    (recentf-mode 1))
+#+end_src
+*** ui
+**** doom-themes
+#+begin_src emacs-lisp :tangle yes
+;; 主题
+(use-package doom-themes
+  :ensure t
+:if (not my/is-termux) ;; disable doom-themes in termux
+:demand t
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  ;; (load-theme 'doom-moonlight t) ; 当前主题
+  (load-theme 'doom-moonlight t)
+  (doom-themes-visual-bell-config) ; Enable flashing mode-line on errors
+  (doom-themes-org-config))
+(setq display-time-day-and-date t)
+(display-time-mode 1)
+#+end_src
+**** all-the-icons
+#+begin_src emacs-lisp :tangle yes
+(use-package all-the-icons
+  :ensure t
+  :if (display-graphic-p))
+#+end_src
+**** doom-modeline
+#+begin_src emacs-lisp :tangle yes
+(use-package doom-modeline
+  :ensure t
+  :hook (after-init . doom-modeline-mode)
+  :custom
+  (doom-modeline-unicode-fallback t)
+  :config
+  (setq doom-modeline-height 1) ; optional
+  (custom-set-faces
+    '(mode-line ((t (:height 0.85))))
+    '(mode-line-active ((t (:height 0.85)))) ; For 29+
+    '(mode-line-inactive ((t (:height 0.85))))))
+#+end_src
+**** minios
+minios
+#+begin_src emacs-lisp :tangle yes
+(use-package minions
+  :ensure t
+  :hook doom-modeline-mode)
+#+end_src
+**** dashboard
+dashboard
+#+begin_src emacs-lisp :tangle yes
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook))
+
+;; Set the title
+(setq dashboard-banner-logo-title "四正天罡！")
+;; Set the banner
+(setq dashboard-startup-banner "~/.emacs.d/logo1.png")
+
+(setq dashboard-center-content t)
+;; vertically center content
+(setq dashboard-vertically-center-content t)
+
+;; To disable shortcut "jump" indicators for each section, set
+(setq dashboard-show-shortcuts nil)
+#+end_src
+
+**** awesome-tab
+#+begin_src emacs-lisp :tangle yes
+(use-package awesome-tab
+  :load-path "~/.emacs.d/github/awesome-tab"
+  :config
+  (awesome-tab-mode t))
+#+end_src
+*** mini buffer
+**** vertico
+将横向的提示变成纵向的，对我来说非常有用
+#+begin_src emacs-lisp :tangle yes
+(use-package vertico)
+(vertico-mode t)
+#+end_src
+**** orderless
+=orderless= 通过模糊匹配的方式来查找候选项，而不是严格的前缀匹配。这意味着你可以输入候选项的任意部分来进行匹配，而不仅限于开头的几个字符。此外， =orderless= 还支持各种模式，例如正则表达式、逻辑运算符等，以提供更强大的匹配功能。
+#+begin_src emacs-lisp :tangle yes
+(use-package orderless
+  :ensure t
+)
+(setq completion-styles '(orderless))
+#+end_src
+**** marginalia
+启用 =marginalia= 后，当你在 =minibuffer= 中进行补全操作时，它会显示与候选项相关的附加信息，例如候选项的类型、位置等。这些信息将显示在 =minibuffer= 的边缘，提供更多的上下文和帮助，帮助你更好地理解和选择候选项。
+#+begin_src emacs-lisp :tangle yes
+(use-package marginalia
+  :ensure t
+)
+(marginalia-mode t)
+#+end_src
+**** dirvish
+#+begin_src emacs-lisp :tangle yes
+(use-package dirvish
+  :load-path "~/.emacs.d/github/dirvish"
+  :config)
+#+end_src
+**** which key
+一个神器差点没用上
+#+begin_src emacs-lisp :tangle yes
+(use-package which-key
+  :ensure t
+  :config
+  (which-key-mode)
+  ;; 设置 which-key 提示位置
+  (setq which-key-popup-type 'minibuffer) ; 可以设置为 'minibuffer 或 'side-window
+  ;; 设置 which-key 显示延迟时间
+  (setq which-key-idle-delay 0.5)
+  ;; 设置 which-key 的展示样式
+  (setq which-key-separator " → "))
+#+end_src
+
+** org-mode
+对于org-mode的基本配置
+*** org-mode
+#+begin_src emacs-lisp :tangle yes
+;; Org Mode
+;; Org Mode
+(use-package org
+  :hook (org-mode . org-num-mode)
+  :config
+  (setq org-hide-leading-stars t
+        org-hide-emphasis-markers t
+        org-startup-indented t))
+#+end_src
+*** org-modern
+**** 基础
+优化org-mode显示，对如：headline、todo、list等结构做美化
+#+begin_src emacs-lisp :tangle yes
+(use-package org-modern
+  :custom
+  (org-modern-hide-stars nil) ; adds extra indentation
+  (org-modern-table nil)
+  (org-modern-list
+    '((?- . "•")
+      (?* . "•")
+      (?+ . "•")))
+  :hook
+  (org-mode . org-modern-mode)
+  (org-agenda-finalize . org-modern-agenda)
+  :config
+  (add-hook 'org-mode-hook #'org-modern-indent-mode 90))
+(setq org-modern-fold-stars
+  '(("◉" . "○") ("◉" . "○") ("◉" . "○") ("◉" . "○") ("◉" . "○") ("◉" . "○")))
+#+end_src
+**** 增强包
+#+begin_src emacs-lisp :tangle yes
+(use-package org-modern-indent
+  :load-path "~/.emacs.d/github/org-modern-indent"
+  ; or
+  ; :straight (org-modern-indent :type git :host github :repo "jdtsmith/org-modern-indent"))
+  :config ; add late to hook
+  (add-hook 'org-mode-hook #'org-modern-indent-mode 90))
+#+end_src
+*** org 快捷键
+一些快捷键
+#+begin_src emacs-lisp :tangle yes
+(defun insert-code-block (language)
+  "Insert a code block based on the given LANGUAGE."
+  (interactive "sEnter code language (c/r/e/p): ")
+  (let ((block-type (cond ((string-equal language "c") "cpp")
+                         ((string-equal language "r") "rust")
+                         ((string-equal language "e") "emacs-lisp")
+                         ((string-equal language "p") "python")
+                         (t nil))))
+    (when block-type
+      (insert (format "#+begin_src %s\n\n#+end_src\n" block-type)))))
+
+(defun insert-code-block (language)
+  "Insert a code block based on the given LANGUAGE."
+  (interactive "sEnter code language (c/r/e/p): ")
+  (let ((block-type (cond ((string-equal language "c") "cpp")
+                         ((string-equal language "r") "rust")
+                         ((string-equal language "e") "emacs-lisp :tangle")
+                         ((string-equal language "p") "python")
+                         (t nil))))
+    (when block-type
+      (insert (format "#+begin_src %s\n\n#+end_src\n" block-type)))))
+
+(defun insert-quote-block ()
+  "Insert a quote block."
+  (interactive)
+  (insert "#+begin_quote\n\n#+end_quote\n"))
+
+(define-key org-mode-map (kbd "C-c b c") (lambda () (interactive) (insert-code-block "c")))
+(define-key org-mode-map (kbd "C-c b r") (lambda () (interactive) (insert-code-block "r")))
+(define-key org-mode-map (kbd "C-c b e") (lambda () (interactive) (insert-code-block "e")))
+(define-key org-mode-map (kbd "C-c b p") (lambda () (interactive) (insert-code-block "p")))
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-c b q") 'insert-quote-block))
+
+(defun enable-proxy ()
+  "Enable proxy settings."
+  (interactive)
+  (setq url-proxy-services
+        '(("http" . "127.0.0.1:7899")
+          ("https" . "127.0.0.1:7899")))
+  (message "Proxy enabled."))
+;; 设置 which-key 描述信息
+(with-eval-after-load 'which-key
+  (which-key-mode)
+  (which-key-add-key-based-replacements
+    "C-c b c" "Insert C code block"
+    "C-c b r" "Insert R code block"
+    "C-c b e" "Insert Emacs Lisp code block"
+    "C-c b p" "Insert Python code block"
+    "C-c b q" "Insert quote block"))
+(defun disable-proxy ()
+  "Disable proxy settings."
+  (interactive)
+  (setq url-proxy-services nil)
+  (message "Proxy disabled."))
+#+end_src
+*** org-appear
+将如： = _ ~ 等结构进行显示优化
+#+begin_src emacs-lisp :tangle yes
+(use-package org-appear
+  :hook org-mode)
+#+end_src
+*** hilght line
+高亮当前行
+#+begin_src emacs-lisp :tangle yes
+;; Highlight Current Line
+(use-package hl-line
+  :when (display-graphic-p)
+  :hook (prog-mode . hl-line-mode))
+#+end_src
+*** org-contrib
+some plugin to org-agenda
+#+begin_src emacs-lisp :tangle yes
+(use-package org-contrib
+  :ensure t
+)
+#+end_src
+*** org-agenda
+**** org-super-agenda
+终于是被我配置好了！
+#+begin_src emacs-lisp :tangle yes
+(setq org-agenda-category-icon-alist
+      `(("Daily" ,(list (all-the-icons-material "today" :height 0.9)) nil nil :ascent center)
+      ("Family" ,(list (all-the-icons-material "home" :height 0.9)) nil nil :ascent center)
+      ("Video" ,(list (all-the-icons-fileicon "video" :height 0.9)) nil nil :ascent center)
+      ("Learn" ,(list (all-the-icons-octicon "book" :height 0.9)) nil nil :ascent center)
+      ("Working" ,(list (all-the-icons-fileicon "ionic-project" :height 0.9)) nil nil :ascent center)
+))
+(global-set-key (kbd "C-c a") 'org-agenda)
+(defun my/org-mode-setup ()
+  (require 'org-checklist)
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "STARTED(s)" "|" "DONE(d!/!)")
+          (sequence "WAITING(w@/!)" "SOMEDAY(S)" "|" "CANCELLED(c@/!)" "MEETING(m)" "PHONE(p)")))
+  (setq org-log-done t)
+  (setq org-log-into-drawer t)
+  (setq org-agenda-files '("~/org_blog/org_agenda/daily.org"
+                            "~/org_blog/org_agenda/working.org"
+                            "~/org_blog/org_agenda/home.org"
+                            "~/org_blog/org_agenda/learn.org"
+                            "~/org_blog/org_agenda/video.org"))
+  (setq org-agenda-span 'day)
+  (setq org-agenda-skip-timestamp-if-done t
+        org-agenda-skip-deadline-if-done t
+        org-agenda-skip-scheduled-if-done t
+        org-agenda-skip-scheduled-if-deadline-is-shown t
+        org-agenda-skip-timestamp-if-deadline-is-shown t)
+  (setq org-agenda-current-time-string "")
+  (setq org-agenda-time-grid '((daily) () "" ""))
+  (setq org-agenda-hide-tags-regexp ".*")
+  (setq org-agenda-prefix-format
+        '((agenda . "  %?-2i %t ")
+          (todo . " %i %-12:c")
+          (tags . " %i %-12:c")
+          (search . " %i %-12:c"))))
+(my/org-mode-setup)
+(use-package org-super-agenda
+  :after org-agenda
+  :init
+  (setq org-super-agenda-groups '((:name "Today"
+					 :time-grid t
+					 :scheduled today)))
+  :config
+  (org-super-agenda-mode))
+#+end_src
+*** olivetti
+#+begin_src emacs-lisp :tangle yes
+(use-package olivetti
+  :ensure t
+  :hook (org-mode . my-org-mode-setup)
+  :hook (org-agenda-mode . my-org-mode-setup)
+  :config
+  (defun my-org-mode-setup ()
+    "Setup Org Mode to mimic A4 paper size and set background colors."
+    (setq olivetti-body-width 80) ; 设置宽度，80列大约是A4纸的宽度
+    (olivetti-mode 1)
+    (visual-line-mode 1)
+    (display-line-numbers-mode t) ; 关闭行号显示
+    (setq left-margin-width 2) ; 左边距
+    (setq right-margin-width 2) ; 右边距
+    (set-window-buffer nil (current-buffer))
+    ;; 设置背景颜色
+    ;; (set-face-background 'default "#2E3440") ; 外部背景颜色
+    ;; (set-face-background 'fringe "#2E3440")  ; 外部背景颜色
+    ;; (set-face-background 'olivetti-default-face "#3B4252") ; A4 区域背景颜色
+    (set-window-buffer nil (current-buffer)))  ;; 定义 olivetti 模式下的 face
+  (defface olivetti-default-face
+    '((t :inherit default))
+    "Face for Olivetti mode background"))
+#+end_src
+*** org-download
+用来处理图片上传的包，需要注意下载 =imagemagick= 包
+#+begin_src emacs-lisp :tangle yes
+(use-package org-download
+  :custom
+  (org-download-heading-lvl 1) ; 以一级标题作为图片文件夹
+  :after org
+  :bind (:map org-mode-map
+              ("C-c i y" . org-download-yank)
+              ("C-c i d" . org-download-delete)
+              ("C-c i e" . org-download-edit))
+  :config
+  ;; 用文件名作为文件夹
+  (defun my-org-download-method (link)
+    (let ((filename
+           (file-name-nondirectory
+            (car (url-path-and-query
+                  (url-generic-parse-url link)))))
+          (dirname (concat "./img/" (file-name-sans-extension (file-name-nondirectory (buffer-file-name))))))
+      (setq org-download-image-dir dirname)
+      (make-directory dirname t)
+      (expand-file-name (funcall org-download-file-format-function filename) dirname)))
+  (setq org-download-method 'my-org-download-method)
+  ;; 在 Windows 系统下修复过时的convert.exe; 注意: 用户名文件夹不能含有空格!
+  (defun my/org-download-clipboard ()
+    (interactive)
+    (let ((filename (expand-file-name "screenshot.png" temporary-file-directory)))
+      (shell-command-to-string (format "magick clipboard: %s" filename))
+      (when (file-exists-p filename)
+        (org-download-image filename)
+        (delete-file filename))))
+  ; 绑定剪贴板图片的快捷键
+  (if my/is-windows
+      (define-key org-mode-map (kbd "C-M-y") #'my/org-download-clipboard)
+    (define-key org-mode-map (kbd "C-M-y") #'org-download-screenshot)))
+#+end_src
+
+* Evil
+** evil基础配置
+=evil= 是 =emacs= 中一个非常优秀的vim模拟器
+#+begin_src emacs-lisp :tangle yes
+(use-package evil
+  :ensure t  ; 确保 evil 包已安装
+  :init
+  ;; Evil 配置初始化
+  (setq evil-want-keybinding nil)  ; 设置不加载默认按键绑定
+  (setq evil-want-C-u-scroll t)    ; 启用 C-u 滚动功能
+  (evil-mode)  ; 启用 Evil 模式
+  (require 'anzu)
+  (require 'evil-anzu)
+  ;; 插入模式下的按键绑定
+  (setcdr evil-insert-state-map nil)  ; 禁用 evil-insert-state 的默认按键绑定
+  ;; 设置 ESC 键回到 Normal 模式
+  (define-key evil-insert-state-map [escape] 'evil-normal-state)
+
+  ;; Normal 模式下的自定义键绑定
+  (define-key evil-normal-state-map (kbd "[ SPC")  ; 在当前行之上插入新行
+    (lambda () (interactive) (evil-insert-newline-above) (forward-line)))
+  (define-key evil-normal-state-map (kbd "] SPC")  ; 在当前行之下插入新行
+    (lambda () (interactive) (evil-insert-newline-below) (forward-line -1)))
+  (define-key evil-normal-state-map (kbd "[ b") 'previous-buffer)  ; 切换到上一个缓冲区
+  (define-key evil-normal-state-map (kbd "] b") 'next-buffer)      ; 切换到下一个缓冲区
+  (define-key evil-motion-state-map (kbd "[ b") 'previous-buffer)   ; 切换到上一个缓冲区（Motion 模式）
+  (define-key evil-motion-state-map (kbd "] b") 'next-buffer)       ; 切换到下一个缓冲区（Motion 模式）
+
+  ;; Dired 模式下的键绑定
+  (evil-define-key 'normal dired-mode-map
+    (kbd "<RET>") 'dired-find-alternate-file  ; 打开文件或目录
+    (kbd "C-k") 'dired-up-directory            ; 上级目录
+    "`" 'dired-open-term                       ; 在当前目录打开终端
+    "q" 'quit-window                           ; 退出 Dired 模式
+    "o" 'dired-find-file-other-window         ; 在其他窗口中打开文件
+    ")" 'dired-omit-mode)                      ; 切换隐藏文件显示状态
+
+  ;; 确保 Evil 加载后对按键绑定进行调整
+  (with-eval-after-load 'evil-maps
+    (define-key evil-motion-state-map (kbd "RET") nil))  ; 在 Motion 模式下禁用 RET 键
+  )
+#+end_src
+#+begin_src emacs-lisp :tangle no
+;; 在 org-agenda-mode 中禁用 evil
+(add-hook 'org-agenda-mode-hook 'evil-emacs-state)
+#+end_src
+
+** evil插件配置
+*** undo-tree
+编程中，机会不只一次
+#+begin_src emacs-lisp :tangle yes
+(use-package undo-tree
+  :diminish  ; 不在 mode-line 上显示 undo-tree 的状态
+  :init
+  (global-undo-tree-mode 1)  ; 启用全局的 undo-tree 模式
+  (setq undo-tree-auto-save-history nil)  ; 禁用自动保存历史记录
+  (evil-set-undo-system 'undo-tree))  ; 设置 Evil 使用 undo-tree 作为其撤销系统
+#+end_src
+*** general
+这些配置主要用于创建和管理按键绑定，以及与 Evil 集成，使按键绑定更加灵活和易于管理。
+#+begin_src emacs-lisp :tangle yes
+;; 配置 general 插件
+(use-package general
+  :init
+  (with-eval-after-load 'evil
+    ;; 当 Evil 载入后执行以下操作
+    (general-add-hook 'after-init-hook
+                      (lambda (&rest _)
+                        ;; 如果存在 *Messages* 缓冲区
+                        (when-let ((messages-buffer (get-buffer "*Messages*")))
+                          (with-current-buffer messages-buffer
+                            ;; 标准化 Evil 键位映射
+                            (evil-normalize-keymaps))))
+                      nil
+                      nil
+                      t))
+
+  ;; 创建全局定义器 global-definer
+  (general-create-definer global-definer
+    :keymaps 'override  ; 指定键位映射为 override
+    :states '(insert emacs normal hybrid motion visual operator)  ; 指定作用的 Evil 状态
+    :prefix "SPC"  ; 设置全局前缀为 SPC
+    :non-normal-prefix "C-SPC")  ; 非 Normal 状态的前缀为 C-SPC
+
+  ;; 定义宏 +general-global-menu!
+  (defmacro +general-global-menu! (name infix-key &rest body)
+    "Create a definer named +general-global-NAME wrapping global-definer.
+Create prefix map: +general-global-NAME. Prefix bindings in BODY with INFIX-KEY."
+    (declare (indent 2))
+    ;; 创建菜单
+    `(progn
+       (general-create-definer ,(intern (concat "+general-global-" name))
+         :wrapping global-definer  ; 包装 global-definer
+         :prefix-map ',(intern (concat "+general-global-" name "-map"))  ; 设置前缀映射
+         :infix ,infix-key  ; 设置中缀键
+         :wk-full-keys nil  ; 禁用完整按键提示
+         "" '(:ignore t :which-key ,name))  ; 设置 Which Key 显示
+       (,(intern (concat "+general-global-" name))
+        ,@body)))
+  ;; 创建全局领袖键定义器 global-leader
+  (general-create-definer global-leader
+    :keymaps 'override  ; 指定键位映射为 override
+    :states '(emacs normal hybrid motion visual operator)  ; 指定作用的 Evil 状态
+    :prefix ","  ; 设置前缀为 ,
+    "" '(:ignore t :which-key (lambda (arg) `(,(cadr (split-string (car arg) " ")) . ,(replace-regexp-in-string "-mode$" "" (symbol-name major-mode)))))))  ; 设置 Which Key 显示
+#+end_src
+**** 创建全局的按键绑定
+#+begin_src emacs-lisp :tangle yes
+;; 创建全局按键绑定
+(global-definer
+  "!" 'shell-command  ; SPC ! 执行 shell 命令
+  "SPC" 'execute-extended-command  ; SPC SPC 执行扩展命令
+  "TAB" 'spacemacs/alternate-buffer  ; SPC TAB 切换到备选缓冲区
+  "'" 'vertico-repeat  ; SPC ' 重复上一次选项
+  "v" 'er/expand-region  ; SPC v 扩大选区
+  "+" 'text-scale-increase  ; SPC + 增加文本大小
+  "-" 'text-scale-decrease  ; SPC - 减小文本大小
+  "u" 'universal-argument  ; SPC u 执行通用参数
+  "=" 'indent-buffer  ; SPC = 缩进缓冲区内容
+  "v" 'er/expand-region  ; SPC v 扩大选区
+  ;flymake
+  "en" 'flymake-goto-next-error  ; SPC en 跳转到下一个 Flymake 错误
+  "ep" 'flymake-goto-prev-error  ; SPC ep 跳转到上一个 Flymake 错误
+  "el" 'flymake-show-buffer-diagnostics  ; SPC el 显示 Flymake 缓冲区诊断信息
+  "0" 'select-window-0  ; SPC 0 选择窗口 0
+  "1" 'select-window-1  ; SPC 1 选择窗口 1
+  "2" 'select-window-2  ; SPC 2 选择窗口 2
+  "3" 'select-window-3  ; SPC 3 选择窗口 3
+  "4" 'select-window-4  ; SPC 4 选择窗口 4
+  "5" 'select-window-5  ; SPC 5 选择窗口 5
+
+  "hc" 'zilongshanren/clearn-highlight  ; SPC hc 清除高亮
+  "hH" 'zilongshanren/highlight-dwim  ; SPC hH 高亮当前符号
+  "hdf" 'describe-function  ; SPC hdf 描述函数
+  "hdv" 'describe-variable  ; SPC hdv 描述变量
+  "hdk" 'describe-key  ; SPC hdk 描述按键
+  )
+#+end_src
+**** 菜单
+***** windows
+主要控制窗口菜单
+#+begin_src emacs-lisp :tangle yes
+;; 定义全局菜单 "window" 并绑定按键
+(+general-global-menu! "window" "w"
+  "/" 'split-window-right  ; SPC w / 在右侧分割窗口
+  "-" 'split-window-below  ; SPC w - 在下方分割窗口
+  "m" 'delete-other-windows  ; SPC w m 删除其他窗口
+  "u" 'winner-undo  ; SPC w u 撤销窗口操作
+  "z" 'winner-redo  ; SPC w z 重做窗口操作
+  "w" 'esw/select-window  ; SPC w w 选择窗口
+  "s" 'esw/swap-two-windows  ; SPC w s 交换两个窗口
+  "d" 'esw/delete-window  ; SPC w d 删除当前窗口
+  "=" 'balance-windows-area  ; SPC w = 平衡窗口大小
+  "r" 'esw/move-window  ; SPC w r 移动当前窗口
+  "x" 'resize-window  ; SPC w x 调整窗口大小
+  "H" 'buf-move-left  ; SPC w H 将当前窗口向左移动
+  "L" 'buf-move-right  ; SPC w L 将当前窗口向右移动
+  "J" 'buf-move-down  ; SPC w J 将当前窗口向下移动
+  "K" 'buf-move-up  ; SPC w K 将当前窗口向上移动
+)
+#+end_src
+***** buffer
+定义buffer菜单
+#+begin_src emacs-lisp :tangle yes
+;; 定义全局菜单 "buffer" 并绑定按键
+(+general-global-menu! "buffer" "b"
+    "d" 'kill-current-buffer  ; SPC b d 关闭当前缓冲区
+    "b" '(consult-buffer :which-key "consult buffer")  ; SPC b b 查找缓冲区
+    "B" 'switch-to-buffer  ; SPC b B 切换到指定缓冲区
+    "p" 'previous-buffer  ; SPC b p 切换到上一个缓冲区
+    "R" 'rename-buffer  ; SPC b R 重命名当前缓冲区
+    "M" '((lambda () (interactive) (switch-to-buffer "*Messages*")) :which-key "messages-buffer")  ; SPC b M 切换到消息缓冲区
+    "n" 'next-buffer  ; SPC b n 切换到下一个缓冲区
+    "i" 'ibuffer  ; SPC b i 打开 ibuffer
+    "f" 'my-open-current-directory  ; SPC b f 在当前目录中打开文件
+    "k" 'kill-buffer  ; SPC b k 关闭当前缓冲区
+    "y" 'copy-buffer-name  ; SPC b y 复制当前缓冲区名称
+    "K" 'kill-other-buffers  ; SPC b K 关闭其他缓冲区
+)
+#+end_src
+***** project
+#+begin_src emacs-lisp :tangle yes
+(+general-global-menu! "project" "p"
+    "f" 'project-find-file  ; SPC p f 查找项目中的文件
+    "r" 'consult-recent-file  ; SPC p r 查找最近的文件
+    "s" 'project-find-regexp  ; SPC p s 在项目中查找正则表达式
+    "d" 'project-dired  ; SPC p d 在项目中打开 dired
+    "b" 'consult-project-buffer  ; SPC p b 查找项目缓冲区
+    "e" 'project-eshell  ; SPC p e 在项目中打开 eshell
+    "c" 'project-compile  ; SPC p c 编译项目
+    "p" 'project-switch-project  ; SPC p p 切换项目
+    "a" 'project-remember-projects-under  ; SPC p a 记住项目
+    "x" 'project-forget-project  ; SPC p x 忘记项目
+)
+#+end_src
+***** search
+#+begin_src emacs-lisp :tangle yes
+(+general-global-menu! "search" "s"
+    "j" 'consult-imenu  ; SPC s j 使用 imenu 查找
+    "p" 'consult-ripgrep  ; SPC s p 使用 ripgrep 查找
+    "k" 'consult-keep-lines  ; SPC s k 保留匹配行
+    "f" 'consult-focus-lines  ; SPC s f 关注匹配行
+)
+#+end_src
+***** file
+#+begin_src emacs-lisp :tangle yes
+;; 定义全局菜单 "file" 并绑定按键
+(+general-global-menu! "file" "f"
+    "f" 'find-file  ; SPC f f 打开文件
+    "r" 'consult-recent-file  ; SPC f r 查找最近的文件
+    "L" 'consult-locate  ; SPC f L 使用 locate 查找文件
+    "d" 'consult-dir  ; SPC f d 使用 consult-dir 查找目录
+    "ed" 'open-init-file  ; SPC f ed 打开 init.el 文件
+    "s" 'save-buffer  ; SPC f s 保存当前缓冲区
+    "w" 'sudo-edit  ; SPC f w 以 root 身份编辑当前文件
+    "S" 'save-some-buffers  ; SPC f S 保存所有缓冲区
+    "j"  'dired-jump  ; SPC f j 跳转到当前目录
+    "y" 'copy-file-name  ; SPC f y 复制当前文件名
+)
+#+end_src
+
+***** layout
+#+begin_src emacs-lisp :tangle yes
+;; 定义全局菜单 "layout" 并绑定按键
+(+general-global-menu! "layout" "l"
+  "l" 'tabspaces-switch-or-create-workspace  ; SPC l l 切换或创建工作区
+  "L" 'tabspaces-restore-session  ; SPC l L 恢复会话
+  "p" 'tabspaces-open-or-create-project-and-workspace  ; SPC l p 打开或创建项目和工作区
+  "f" 'tabspaces-project-switch-project-open-file  ; SPC l f 切换项目并打开文件
+  "s" 'tabspaces-save-session  ; SPC l s 保存会话
+  "B" 'tabspaces-switch-buffer-and-tab  ; SPC l B 切换缓冲区和选项卡
+  "b" 'tabspaces-switch-to-buffer  ; SPC l b 切换到缓冲区
+  "R" 'tab-rename  ; SPC l R 重命名选项卡
+  "TAB" 'tab-bar-switch-to-recent-tab  ; SPC l TAB 切换到最近的选项卡
+  "r" 'tabspaces-remove-current-buffer  ; SPC l r 移除当前缓冲区
+  "k" 'tabspaces-close-workspace  ; SPC l k 关闭工作区
+)
+#+end_src
+
+*** evil-anzu
+=Anzu= 是一个 =Emacs= 的包，用于在模式行中显示当前搜索匹配的数量，并提供增强的搜索和替换功能。当你使用搜索功能时， =Anzu= 会显示匹配项的数量，并在搜索过程中实时更新。它还可以让你跳转到下一个或上一个匹配项，以及执行替换操作等。
+=Evil Anzu= 是 =Anzu= 的一个扩展，专门为 =Evil= 模式（Emacs 中的 Vim 模拟器）提供支持。它使得在 =Evil= 模式下使用 =Anzu= 更加方便，与 =Evil= 的快捷键绑定和行为相兼容。 =Evil Anzu= 可以与 =Evil= 的移动、删除和替换命令一起使用，提供了更灵活、更强大的搜索替换功能。
+#+begin_src emacs-lisp :tangle yes
+;; 使用 use-package 来管理 anzu 和 evil-anzu
+(use-package anzu
+  :ensure t
+  :init
+  (global-anzu-mode t))
+
+(use-package evil-anzu
+  :ensure t
+  :after (evil anzu)
+  :config
+  (require 'evil-anzu))
+#+end_src
+
+*** evil-collection
+evil-collection 是为了增强 Emacs 中的 Evil 模式（即 Vim 模式）而设计的。它提供了 Evil 模式在许多不同模式下的支持，包括但不限于各种编程语言的模式、文件管理器模式、版本控制模式等等。通过使用 evil-collection，用户可以在编辑不同类型的文件时都能够使用相同的 Vim 风格的键绑定和编辑习惯，提高了编辑效率和流畅度。
+#+begin_src emacs-lisp :tangle yes
+(use-package evil-collection
+  :ensure t
+  :demand t
+  :config
+  (setq evil-collection-mode-list (remove 'lispy evil-collection-mode-list))
+  (evil-collection-init)
+
+   (cl-loop for (mode . state) in
+	    '((org-agenda-mode . normal)
+	      (Custom-mode . emacs)
+	      (eshell-mode . emacs)
+	      (makey-key-mode . motion))
+	    do (evil-set-initial-state mode state)))
+#+end_src
+*** evil-surround
+允许用户在 =Evil= 模式下快速添加、修改和删除包围字符，比如引号、括号等
+#+begin_src emacs-lisp :tangle yes
+(use-package evil-surround
+  :ensure t
+  :init
+  (global-evil-surround-mode 1))
+#+end_src
+
+*** evil-nerd-comment
+为 =Evil= 模式提供快速的注释和取消注释功能。
+#+begin_src emacs-lisp :tangle yes
+(use-package evil-nerd-commenter
+  :init
+  (define-key evil-normal-state-map (kbd ",/") 'evilnc-comment-or-uncomment-lines)
+  (define-key evil-visual-state-map (kbd ",/") 'evilnc-comment-or-uncomment-lines)
+)
+#+end_src
+
+*** evil-snap
+增强 =Evil= 模式的搜索功能，允许用户在当前行快速跳转到特定字符。
+#+begin_src emacs-lisp :tangle yes
+(use-package evil-snipe
+  :ensure t
+  :diminish
+  :init
+  (evil-snipe-mode +1)
+  (evil-snipe-override-mode +1))
+#+end_src
+*** evil-matchit
+增强 =Evil= 模式中 =%= 键的匹配功能，使其能够智能匹配更多种类的代码块，如 =HTML= 中的标签、括号、 =XML= 标签等。
+#+begin_src emacs-lisp :tangle yes
+(use-package evil-matchit
+  :ensure
+  :init
+  (global-evil-matchit-mode 1))
+#+end_src
+
+*** evil-iedit
+允许用户同时编辑多个相同文本片段的实例。
+#+begin_src emacs-lisp :tangle yes
+(use-package iedit
+  :ensure t
+  :init
+  (setq iedit-toggle-key-default nil)
+  :config
+  (define-key iedit-mode-keymap (kbd "M-h") 'iedit-restrict-function)
+  (define-key iedit-mode-keymap (kbd "M-i") 'iedit-restrict-current-line))
+#+end_src
+
+*** evil-multiedit
+允许用户在 Evil 模式下同时编辑多个相同文本片段的实例。
+#+begin_src emacs-lisp :tangle yes
+(use-package evil-multiedit
+  :ensure t
+  :commands (evil-multiedit-default-keybinds)
+  :init
+  (evil-multiedit-default-keybinds))
+#+end_src
+
+** org-roam
+*** org-roam
+一个非常优秀的双链笔记在org-mode中的实现，可以对笔记进行关联、管理
+#+begin_src emacs-lisp :tangle yes
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory (file-truename "~/org_blog/org_note/"))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ("C-c n j" . org-roam-dailies-capture-today)
+	 ("C-c n u" . org-roam-ui-mode))
+  :config
+  ;; If you're using a vertical completion framework, you might want a more informative completion interface
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:20}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode)
+					;sqlite3
+  ;; If using org-roam-protocol
+  (require 'org-roam-protocol))
+#+end_src
+
+*** org-roam-ui
+现在大部分双链笔记都有 =知识图谱= 的概念，可以更加具像化的看出知识点与知识点之间的关系
+#+begin_src emacs-lisp :tangle yes
+(use-package org-roam-ui
+  :ensure t
+  :after org-roam
+  :custom
+  (org-mode-ui-sync-theme t)
+  (org-roam-ui-follow t)
+  (org-roam-ui-update-on-save t))
+#+end_src
+*** org-capture
+#+begin_src emacs-lisp :tangle yes
+  ;; custom org-capture templates
+  (require 'org-protocol)
+  (setq org-agenda-file-note (expand-file-name "~/org_blog/org_note/notes.org"))
+  (setq org-capture-templates
+        '(("t" "Tasks")
+          ("td" "Daily Tasks" entry
+           (file+headline "~/org_blog/org_agenda/daily.org" "Tasks")
+           "* TODO [#%^{Priority|A|B|C}] %?\n  %i\n  %U"
+           :empty-lines 1)
+          ("tw" "Work Tasks" entry
+           (file+headline "~/org_blog/org_agenda/working.org" "Tasks")
+           "* TODO [#%^{Priority|A|B|C}] %?\n  %i\n  %U"
+           :empty-lines 1)
+          ("th" "Home Tasks" entry
+           (file+headline "~/org_blog/org_agenda/home.org" "Tasks")
+           "* TODO [#%^{Priority|A|B|C}] %?\n  %i\n  %U"
+           :empty-lines 1)
+          ("tl" "Learning Tasks" entry
+           (file+headline "~/org_blog/org_agenda/learn.org" "Tasks")
+           "* TODO [#%^{Priority|A|B|C}] %?\n  %i\n  %U"
+           :empty-lines 1)
+          ("tv" "Video Tasks" entry
+           (file+headline "~/org_blog/org_agenda/video.org" "Tasks")
+           "* TODO [#%^{Priority|A|B|C}] %?\n  %i\n  %U"
+           :empty-lines 1)
+          ("x" "Web Collections" entry
+          (file+headline org-agenda-file-note "Web")
+          "* TODO %?\nCaptured on: %U\nSource: %:annotation\n\n%:initial\n\n** Summary\n\n")
+           ))
+
+  (global-set-key (kbd "C-c r") 'org-capture)
+  (setq org-agenda-custom-commands
+        '(("c" "重要且紧急的事"
+           ((tags-todo "+PRIORITY=\"A\"")))
+          ;; ...other commands here
+          ))
+#+end_src
+
+*  操作优化
+** 交互
+*** embark
+绑定 =Ctrl+;= ，可以直接对各种内容进行操作
+#+begin_src emacs-lisp :tangle no
+  (use-package embark
+    :ensure t
+  )
+  (global-set-key (kbd "C-;") 'embark-act)
+  (setq prefix-help-command 'embark-prefix-help-command)
+#+end_src
+
+**** consult-embark
+#+begin_src emacs-lisp :tangle yes
+;; 配置 consult
+(use-package consult
+  :ensure t
+  :bind
+  (("C-s" . consult-line)       ;; 将 consult-line 绑定到快捷键
+   ("C-c C-c i" . consult-imenu)  ;; 将 consult-imenu 绑定到快捷键
+   ("C-x b" . consult-buffer))) ;; 将 consult-buffer 绑定到快捷键
+
+;; 配置 embark
+(use-package embark
+  :ensure t
+  :bind
+  (("C-;" . embark-act))  ;; 将 embark-act 绑定到快捷键
+  :init
+  (setq prefix-help-command 'embark-prefix-help-command))
+
+;; 配置 embark-consult
+(use-package embark-consult
+  :ensure t
+  :after (embark consult)  ;; 确保 embark 和 consult 已加载
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+** 窗口页面等
+*** window numbering
+可以给窗口一个固定的编号，然后使用 =meta+编号= 来切换窗口。
+#+begin_src emacs-lisp :tangle yes
+(use-package window-numbering
+  :init
+  :hook (after-init . window-numbering-mode))
+#+end_src
+
+*** 文件管理 dirvish
+一个非常不错的文件管理包
+#+begin_src emacs-lisp :tangle yes
+
+  (add-to-list 'load-path "~/.emacs.d/github/dirvish")
+  (add-to-list 'load-path "~/.emacs.d/github/dirvish/extensions/")
+  ;; 加载 dirvish 包
+  (require 'dirvish)
+  ;; 覆盖 dired 模式
+  (dirvish-override-dired-mode)
+
+;; 加载并配置 all-the-icons-dired 包
+(use-package all-the-icons-dired
+  :ensure t
+  :hook (dirvish-mode . all-the-icons-dired-mode))  ;; 启用 dirvish-icons 支持
+  (with-eval-after-load 'dirvish
+    (require 'dirvish-icons))
+
+  ;; 设置 dirvish-side
+  (require 'dirvish-side)
+  (setq dirvish-side-width 30)
+
+  (use-package nerd-icons
+    ;; :custom
+    ;; The Nerd Font you want to use in GUI
+    ;; "Symbols Nerd Font Mono" is the default and is recommended
+    ;; but you can use any other Nerd Font if you want
+    ;; (nerd-icons-font-family "Symbols Nerd Font Mono")
+   )
+
+  (setq dirvish-attributes
+        '(vc-state subtree-state nerd-icons collapse git-msg file-time file-size))
+  (setq dirvish-subtree-state-style 'nerd)
+#+end_src

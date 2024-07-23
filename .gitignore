@@ -1,0 +1,10 @@
+eln-cache/
+elpa/
+var/
+custom.el
+config.el
+org-roam.db
+transient/
+tree-sitter/
+org-persist/
+emacs_backtrace.txt

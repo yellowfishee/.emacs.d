@@ -1,0 +1,15 @@
+/#org-visual-outline.el#
+/#test.org#
+/test.org
+/.#test.org
+/#README.org#
+/#old.el#
+/longtest.org
+/old.el
+/org-visual-outline.elc
+*.el#
+*.org#
+org-visual-outline.el
+*.elc
+/output-2020-12-10-09:47:12.gif
+/.#org-visual-indent.el

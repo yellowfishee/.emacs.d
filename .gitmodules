@@ -1,0 +1,18 @@
+[submodule "org-modern-indent"]
+	path = org-modern-indent
+	url = https://github.com/jdtsmith/org-modern-indent.git
+[submodule "github/org-modern-indent"]
+	path = github/org-modern-indent
+	url = https://github.com/jdtsmith/org-modern-indent.git
+[submodule "github/awesome-tab"]
+	path = github/awesome-tab
+	url = https://github.com/manateelazycat/awesome-tab.git
+[submodule "github/dirvish"]
+	path = github/dirvish
+	url = https://github.com/alexluigit/dirvish.git
+[submodule "github/org-visual-outline"]
+	path = github/org-visual-outline
+	url = https://github.com/legalnonsense/org-visual-outline.git
+[submodule "github/holo-layer"]
+	path = github/holo-layer
+	url = https://github.com/manateelazycat/holo-layer.git
