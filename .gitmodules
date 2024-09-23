@@ -16,3 +16,6 @@
 [submodule "github/holo-layer"]
 	path = github/holo-layer
 	url = https://github.com/manateelazycat/holo-layer.git
+[submodule "github/org-zettel-ref-mode"]
+	path = github/org-zettel-ref-mode
+	url = https://github.com/yibie/org-zettel-ref-mode.git
