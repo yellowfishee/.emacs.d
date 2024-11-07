@@ -16,6 +16,9 @@
 [submodule "github/holo-layer"]
 	path = github/holo-layer
 	url = https://github.com/manateelazycat/holo-layer.git
+[submodule "github/emacs-application-framework"]
+	path = github/emacs-application-framework
+	url = https://github.com/emacs-eaf/emacs-application-framework.git
 [submodule "github/org-zettel-ref-mode"]
 	path = github/org-zettel-ref-mode
 	url = https://github.com/yibie/org-zettel-ref-mode.git

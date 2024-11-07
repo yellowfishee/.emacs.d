@@ -21,14 +21,18 @@ some Variable
 (setq default-frame-alist '((fullscreen . maximized))) ;; 全屏
 ;; 禁止emacs写入自定义变量
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory)) 
-(defvar my/font-height 150)
+;; (defvar my/font-height 150)
 (defvar my/latex-preview-scale 1.3)
+(defvar my/font-height 130)
 #+end_src
 *** keybindings
 #+begin_src emacs-lisp :tangle yes
 (global-set-key (kbd "C-h C-f") 'find-function)
 (global-set-key (kbd "C-h C-v") 'find-variable)
 (global-set-key (kbd "C-h C-k") 'find-function-on-key)
+;; 绑定 org-toggle-inline-images 命令到 C-c i s
+(global-set-key (kbd "C-c i s") 'org-toggle-inline-images)
+
 ;; 通过设置符号系统，可以解决 org2md时出现的\r换行问题
 (setq-default buffer-file-coding-system 'utf-8-unix)
 (setq-default
@@ -74,117 +78,133 @@ some Variable
 关于emacs界面的一些function的定义
 **** 设置字体大小
 #+begin_src emacs-lisp :tangle yes
-;; 设置字体大小
-(defun my/set-font-size ()
-  (interactive)
-  (cond (my/is-termux
-          (setq my/font-height 125
-                my/latex-preview-scale 1.25))
-        (t (pcase (display-pixel-height)
-              ((pred (> 999))
-              (setq my/font-height 130
-                    my/latex-preview-scale 1.3))
-              ((pred (> 1300))
-              (setq my/font-height 160
-                    my/latex-preview-scale 1.6))
-              (_ (setq my/font-height 180
-                      my/latex-preview-scale 1.8))))))
+  ;; 设置字体大小
+  (defun my/set-font-size ()
+    (interactive)
+    (cond (my/is-termux
+            (setq my/font-height 125
+                  my/latex-preview-scale 1.25))
+          (t (pcase (display-pixel-height)
+                ((pred (> 999))
+                (setq my/
+  font-height 130
+                      my/latex-preview-scale 1.3))
+                ((pred (> 1300))
+                (setq my/font-height 160
+                      my/latex-preview-scale 1.6))
+                (_ (setq my/font-height 180
+                        my/latex-preview-scale 1.8))))))
 #+end_src
 **** 设置字体
 #+begin_src emacs-lisp :tangle yes
-;;设置字体
-(defun my/set-font 
-    ()
+  ;;设置字体
+  (defun my/set-font 
+      ()
+      (interactive)
+      (setq my/default-font "Iosevka Comfy") ;; fonts-firacode (apt) 或 ttf-fira-code (pacman)
+  ;;    (setq my/default-font "Fira Code")
+      (setq my/math-font "Latin Modern Math") ; texlive 字体
+      ;;(setq my/math-font "Iosevka Comfy")
+      (setq my/chinese-font
+          (cond 
+              (my/is-termux "Roboto")
+              (my/is-manjaro "Iosevka Comfy") ;; ttf-arphic-ukai (pacman)
+  ;;            (my/is-linux "FZShengShiKaiShuS-DB-GB") ;; fonts-arphic-gkai00mp (apt)
+              ;; (my/is-windows "FZShengShiKaiShuS-DB-GB")
+              (my/is-windows "TsangerJinKai03 W04")
+              ;; (my/is-windows "Kaiti")
+                 ;;(my/is-windows "LXGW WenKai Screen")
+              (t "Iosevka Comf")))
+      (setq my/variable-pitch-font
+          (cond 
+              (my/is-linux "Iosevka Comfy Motion Duo") 
+              (my/is-windows  "Iosevka Comfy Motion Duo")
+              (t "Iosevka Comfy Motion Duo")))
+      (setq my/fixed-pitch-font "Iosevka Comfy") ;; fonts-jetbrains-mono (apt) 或 ttf-jetbrains-mono (pacman)
+
+      (if 
+          (find-font 
+              (font-spec :name my/default-font))
+          (set-face-attribute 'default nil :font my/default-font :height my/font-height)  ; 默认字体及字号.
+          (message 
+              (format "cannot find %s for the default font" my/default-font))
+          (set-face-attribute 'default nil :height my/font-height)) ; 找不到字体只设置字号
+
+      (if 
+          (find-font 
+              (font-spec :name my/variable-pitch-font))
+          (set-face-attribute 'variable-pitch nil :font my/variable-pitch-font :height my/font-height) ; 比例字体 
+          (message 
+              (format "cannot find %s for the variable pitch font"  my/variable-pitch-font)))
+
+      (if 
+          (find-font 
+              (font-spec :name my/fixed-pitch-font))
+          (set-face-attribute 'fixed-pitch nil :font my/fixed-pitch-font :height my/font-height) ; 等宽字体 
+          (message 
+              (format "cannot find %s for the fixed pitch font"  my/fixed-pitch-font)))
+
+      (unless my/is-terminal ; 非图形界面 set-fontset-font
+          (if 
+              (find-font 
+                  (font-spec :name my/math-font))
+              (set-fontset-font "fontset-default" 'mathematical my/math-font) ; 数学符号默认字体
+              (message 
+                  (format "cannot find %s for the math font"  my/math-font)))
+          (if 
+              (find-font 
+                  (font-spec :name my/chinese-font))
+              (set-fontset-font "fontset-default" 'han my/chinese-font) ; 中文默认字体
+              (message 
+                  (format "cannot find %s for the chinese font"  my/chinese-font))))
+
+      (setq inhibit-compacting-font-caches t) ; 汉字及 Unicode 显示问题
+      (setq auto-window-vscroll nil)) ; 不根据行高做上下滚动调整
+
+  (defun my/set-org-font ()
     (interactive)
-    (setq my/default-font "Intel One Mono") ;; fonts-firacode (apt) 或 ttf-fira-code (pacman)
-;;    (setq my/default-font "Fira Code")
-    (setq my/math-font "Latin Modern Math") ; texlive 字体
-    (setq my/chinese-font
-        (cond 
-            (my/is-termux "Roboto")
-            (my/is-manjaro "AR PL UKai CN") ;; ttf-arphic-ukai (pacman)
-;;            (my/is-linux "FZShengShiKaiShuS-DB-GB") ;; fonts-arphic-gkai00mp (apt)
-;;            (my/is-windows "FZShengShiKaiShuS-DB-GB")
-;;            (my/is-windows "LXGW Zhenkai")
-            (my/is-windows "Kaiti")
-            (t "Fira code")))
-    (setq my/variable-pitch-font
-        (cond 
-            (my/is-linux "Iosevka Aile") 
-            (my/is-windows  "Segoe Print")
-            (t "Fira Code")))
-    (setq my/fixed-pitch-font "JetBrains Mono") ;; fonts-jetbrains-mono (apt) 或 ttf-jetbrains-mono (pacman)
-
-    (if 
-        (find-font 
-            (font-spec :name my/default-font))
-        (set-face-attribute 'default nil :font my/default-font :height my/font-height)  ; 默认字体及字号.
-        (message 
-            (format "cannot find %s for the default font" my/default-font))
-        (set-face-attribute 'default nil :height my/font-height)) ; 找不到字体只设置字号
-
-    (if 
-        (find-font 
-            (font-spec :name my/variable-pitch-font))
-        (set-face-attribute 'variable-pitch nil :font my/variable-pitch-font :height my/font-height) ; 比例字体 
-        (message 
-            (format "cannot find %s for the variable pitch font"  my/variable-pitch-font)))
-
-    (if 
-        (find-font 
-            (font-spec :name my/fixed-pitch-font))
-        (set-face-attribute 'fixed-pitch nil :font my/fixed-pitch-font :height my/font-height) ; 等宽字体 
-        (message 
-            (format "cannot find %s for the fixed pitch font"  my/fixed-pitch-font)))
-
-    (unless my/is-terminal ; 非图形界面 set-fontset-font
-        (if 
-            (find-font 
-                (font-spec :name my/math-font))
-            (set-fontset-font "fontset-default" 'mathematical my/math-font) ; 数学符号默认字体
-            (message 
-                (format "cannot find %s for the math font"  my/math-font)))
-        (if 
-            (find-font 
-                (font-spec :name my/chinese-font))
-            (set-fontset-font "fontset-default" 'han my/chinese-font) ; 中文默认字体
-            (message 
-                (format "cannot find %s for the chinese font"  my/chinese-font))))
-
-    (setq inhibit-compacting-font-caches t) ; 汉字及 Unicode 显示问题
-    (setq auto-window-vscroll nil)) ; 不根据行高做上下滚动调整
-
-(defun my/set-org-font ()
-  (interactive)
-  ;; org 字体美化
-  (require 'org-faces)
-  ;; 标题字体大小优化
-  (set-face-attribute 'org-document-title nil :weight 'bold :height 1.2)
-  (dolist (face '((org-level-1 . 1.05)
-                  (org-level-2 . 1.0)
-                  (org-level-3 . 1.0)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.0)
-                  (org-level-6 . 1.0)
-                  (org-level-7 . 1.0)
-                  (org-level-8 . 1.0)))
-    (set-face-attribute (car face) nil :weight 'medium :height (cdr face)))
-  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-block-begin-line nil :foreground nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-block-end-line nil :foreground nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-property-value nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-verbatim nil  :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-drawer nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-document-info-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
-  (setq org-fontify-quote-and-verse-blocks t) ; 启用 org-qoute 变量为 quote 设置不同的字体
-  (set-face-attribute 'org-quote nil :inherit 'fixed-pitch)
-  (require 'org-indent)
-  (set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch)))
+    ;; org 字体美化
+    (require 'org-faces)
+    ;; 标题字体大小优化
+    (set-face-attribute 'org-document-title nil :weight 'bold :height 1.2)
+    (dolist (face '((org-level-1 . 1.05)
+                    (org-level-2 . 1.0)
+                    (org-level-3 . 1.0)
+                    (org-level-4 . 1.0)
+                    (org-level-5 . 1.0)
+                    (org-level-6 . 1.0)
+                    (org-level-7 . 1.0)
+                    (org-level-8 . 1.0)))
+      (set-face-attribute (car face) nil :weight 'medium :height (cdr face)))
+    (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-block-begin-line nil :foreground nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-block-end-line nil :foreground nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-property-value nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-verbatim nil  :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-drawer nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-document-info-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+    (setq org-fontify-quote-and-verse-blocks t) ; 启用 org-qoute 变量为 quote 设置不同的字体
+    (set-face-attribute 'org-quote nil :inherit 'fixed-pitch)
+    (require 'org-indent)
+    (set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch)))
+#+end_src
+**** 设置org-mode标题
+下载字体，修改即可
+#+begin_src emacs-lisp :tangle yes
+(setq my/title-font "Iosevka Comfy Motion Duo SmBd")
+  ;; 应用标题字体
+  (if (find-font (font-spec :name my/title-font))
+      (progn
+        (set-face-attribute 'org-document-title nil :font my/title-font :weight 'bold :height 1.2)
+        (dolist (level '(1 2 3 4 5 6 7 8))
+          (set-face-attribute (intern (format "org-level-%d" level)) nil :font my/title-font :weight 'bold :height (* 1.05 (/ 9 (- 10 level)))))
+        (message "Title font set successfully"))
+    (message (format "Cannot find %s for the title font" my/title-font)))
 #+end_src
 **** 设置行号
 #+begin_src emacs-lisp :tangle yes
@@ -284,8 +304,52 @@ no-littering-etc-directory));屏蔽临时文件
     (recentf-mode 1))
 #+end_src
 *** ui
-**** doom-themes
+**** modus theme
 #+begin_src emacs-lisp :tangle yes
+
+;; (my-modus-themes-saturate -100) ;;; minimal satruraion
+
+;; (load-theme 'doom-moonlight t)
+
+;; (load-theme 'doom-city-lights t)
+;; (load-theme 'modus-vivendi t)
+ (load-theme 'modus-operandi t)
+;; (load-theme 'nano-light)
+#+end_src
+#+begin_src emacs-lisp :tangle no
+(defun my-modus-themes-saturate (percent)
+  "Saturate current Modus theme palette overrides by PERCENT."
+  (interactive
+   (list (read-number "Saturation by percent: ")))
+  (let* ((theme (modus-themes--current-theme))
+         (palette (pcase theme
+                    ('modus-operandi modus-themes-operandi-colors)
+                    ('modus-vivendi modus-themes-vivendi-colors)
+                    (_ (error "No Modus theme is active"))))
+         (overrides (pcase theme
+                      ('modus-operandi 'modus-themes-operandi-color-overrides)
+                      ('modus-vivendi 'modus-themes-vivendi-color-overrides)
+                      (_ (error "No Modus theme is active")))))
+    (let (name cons colors)
+      (dolist (cons palette)
+        (setq name (color-saturate-name (cdr cons) percent))
+        (setq name (format "%s" name))
+        (setq cons `(,(car cons) . ,name))
+        (push cons colors))
+      (set overrides colors))
+    (pcase theme
+      ('modus-operandi (modus-themes-load-operandi))
+      ('modus-vivendi (modus-themes-load-vivendi)))))
+
+(setq modus-themes-bold-constructs t) ;;;推荐设置
+(my-modus-themes-saturate 0) ;;;default
+(my-modus-themes-saturate -100) ;;; minimal satruraion
+
+(setq modus-themes-bold-constructs t) ;;;推荐设置
+(my-modus-themes-saturate 0) ;;;default
+#+end_src
+**** doom-themes
+#+begin_src emacs-lisp :tangle no
 ;; 主题
 (use-package doom-themes
   :ensure t
@@ -318,9 +382,16 @@ no-littering-etc-directory));屏蔽临时文件
   :config
   (setq doom-modeline-height 1) ; optional
   (custom-set-faces
-    '(mode-line ((t (:height 0.85))))
-    '(mode-line-active ((t (:height 0.85)))) ; For 29+
-    '(mode-line-inactive ((t (:height 0.85))))))
+    '(mode-line ((t (:height 0.95))))
+    '(mode-line-active ((t (:height 0.95)))) ; For 29+
+    '(mode-line-inactive ((t (:height 0.95))))))
+#+end_src
+**** nyan-mode
+彩虹
+#+begin_src emacs-lisp :tangle no
+(use-package nyan-mode
+  :ensure t
+  :init (nyan-mode 1))
 #+end_src
 **** minios
 minios
@@ -351,7 +422,7 @@ dashboard
 #+end_src
 
 **** awesome-tab
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (use-package awesome-tab
   :load-path "~/.emacs.d/github/awesome-tab"
   :config
@@ -433,6 +504,34 @@ dashboard
   (add-hook 'org-mode-hook #'org-modern-indent-mode 90))
 (setq org-modern-fold-stars
   '(("◉" . "○") ("◉" . "○") ("◉" . "○") ("◉" . "○") ("◉" . "○") ("◉" . "○")))
+#+end_src
+=org modern配置=
+#+begin_src emacs-lisp :tangle yes
+(setq
+ ;; Edit settings
+ org-auto-align-tags nil
+ org-tags-column 0
+ org-catch-invisible-edits 'show-and-error
+ org-special-ctrl-a/e t
+ org-insert-heading-respect-content t
+
+ ;; Org styling, hide markup etc.
+ org-hide-emphasis-markers t
+ org-pretty-entities t
+
+ ;; Agenda styling
+ org-agenda-tags-column 0
+ org-agenda-block-separator ?─
+ org-agenda-time-grid
+ '((daily today require-timed)
+   (800 1000 1200 1400 1600 1800 2000)
+   " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+ org-agenda-current-time-string
+ "◀── now ─────────────────────────────────────────────────")
+
+;; Ellipsis styling
+(setq org-ellipsis "…")
+(set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
 #+end_src
 **** 增强包
 #+begin_src emacs-lisp :tangle yes
@@ -527,52 +626,53 @@ some plugin to org-agenda
 **** org-super-agenda
 终于是被我配置好了！
 #+begin_src emacs-lisp :tangle yes
-(setq org-agenda-category-icon-alist
-      `(("Daily" ,(list (all-the-icons-material "today" :height 0.9)) nil nil :ascent center)
-      ("Family" ,(list (all-the-icons-material "home" :height 0.9)) nil nil :ascent center)
-      ("Video" ,(list (all-the-icons-fileicon "video" :height 0.9)) nil nil :ascent center)
-      ("Learn" ,(list (all-the-icons-octicon "book" :height 0.9)) nil nil :ascent center)
-      ("Working" ,(list (all-the-icons-fileicon "ionic-project" :height 0.9)) nil nil :ascent center)
-))
-(global-set-key (kbd "C-c a") 'org-agenda)
-(defun my/org-mode-setup ()
-  (require 'org-checklist)
-  (setq org-todo-keywords
-        '((sequence "TODO(t)" "STARTED(s)" "|" "DONE(d!/!)")
-          (sequence "WAITING(w@/!)" "SOMEDAY(S)" "|" "CANCELLED(c@/!)" "MEETING(m)" "PHONE(p)")))
-  (setq org-log-done t)
-  (setq org-log-into-drawer t)
-  (setq org-agenda-files '("~/org_blog/org_agenda/daily.org"
-                            "~/org_blog/org_agenda/working.org"
-                            "~/org_blog/org_agenda/home.org"
-                            "~/org_blog/org_agenda/learn.org"
-                            "~/org_blog/org_agenda/video.org"))
-  (setq org-agenda-span 'day)
-  (setq org-agenda-skip-timestamp-if-done t
-        org-agenda-skip-deadline-if-done t
-        org-agenda-skip-scheduled-if-done t
-        org-agenda-skip-scheduled-if-deadline-is-shown t
-        org-agenda-skip-timestamp-if-deadline-is-shown t)
-  (setq org-agenda-current-time-string "")
-  (setq org-agenda-time-grid '((daily) () "" ""))
-  (setq org-agenda-hide-tags-regexp ".*")
-  (setq org-agenda-prefix-format
-        '((agenda . "  %?-2i %t ")
-          (todo . " %i %-12:c")
-          (tags . " %i %-12:c")
-          (search . " %i %-12:c"))))
-(my/org-mode-setup)
-(use-package org-super-agenda
-  :after org-agenda
-  :init
-  (setq org-super-agenda-groups '((:name "Today"
-					 :time-grid t
-					 :scheduled today)))
-  :config
-  (org-super-agenda-mode))
+  (setq org-agenda-category-icon-alist
+        `(("Daily" ,(list (all-the-icons-material "today" :height 0.9)) nil nil :ascent center)
+        ("Family" ,(list (all-the-icons-material "home" :height 0.9)) nil nil :ascent center)
+        ("Video" ,(list (all-the-icons-fileicon "video" :height 0.9)) nil nil :ascent center)
+        ("Learn" ,(list (all-the-icons-octicon "book" :height 0.9)) nil nil :ascent center)
+        ("Working" ,(list (all-the-icons-fileicon "ionic-project" :height 0.9)) nil nil :ascent center)
+  ))
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (defun my/org-mode-setup ()
+    (require 'org-checklist)
+    (setq org-todo-keywords
+          '((sequence "TODO(t)" "STARTED(s)" "|" "DONE(d!/!)")
+            (sequence "WAITING(w@/!)" "SOMEDAY(S)" "|" "CANCELLED(c@/!)" "MEETING(m)" "PHONE(p)")))
+    (setq org-log-done t)
+    (setq org-log-into-drawer t)
+    (setq org-agenda-files '("~/org_blog/org_agenda/daily.org"
+                              "~/org_blog/org_agenda/working.org"
+                              "~/org_blog/org_agenda/home.org"
+                              "~/org_blog/org_agenda/learn.org"
+                              "~/org_blog/org_agenda/video.org"))
+    (setq org-agenda-span 'day)
+    (setq org-agenda-skip-timestamp-if-done t
+          org-agenda-skip-deadline-if-done t
+          org-agenda-skip-scheduled-if-done t
+          org-agenda-skip-scheduled-if-deadline-is-shown t
+          org-agenda-skip-timestamp-if-deadline-is-shown t)
+    (setq org-agenda-current-time-string "")
+    (setq org-agenda-time-grid '((daily) () "" ""))
+    (setq org-agenda-hide-tags-regexp ".*")
+    (setq org-agenda-prefix-format
+          '((agenda . "  %?-2i %t ")
+            (todo . " %i %-12:c")
+            (tags . " %i %-12:c")
+            (search . " %i %-12:c"))))
+  (my/org-mode-setup)
+  (use-package org-super-agenda
+    :after org-agenda
+    :init
+    (setq org-super-agenda-groups '((:name "Today"
+                                           :time-grid t
+                                           :scheduled today)))
+    :config
+    (org-super-agenda-mode))
 #+end_src
 *** olivetti
-#+begin_src emacs-lisp :tangle yes
+修改页边距，模拟A4纸
+#+begin_src emacs-lisp :tangle no
 (use-package olivetti
   :ensure t
   :hook (org-mode . my-org-mode-setup)
@@ -588,9 +688,9 @@ some plugin to org-agenda
     (setq right-margin-width 2) ; 右边距
     (set-window-buffer nil (current-buffer))
     ;; 设置背景颜色
-    ;; (set-face-background 'default "#2E3440") ; 外部背景颜色
-    ;; (set-face-background 'fringe "#2E3440")  ; 外部背景颜色
-    ;; (set-face-background 'olivetti-default-face "#3B4252") ; A4 区域背景颜色
+;;    (set-face-background 'default "#2E3440") ; 外部背景颜色
+;;    (set-face-background 'fringe "#2E3440")  ; 外部背景颜色
+;;    (set-face-background 'olivetti-default-face "#3B4252") ; A4 区域背景颜色
     (set-window-buffer nil (current-buffer)))  ;; 定义 olivetti 模式下的 face
   (defface olivetti-default-face
     '((t :inherit default))
@@ -969,7 +1069,7 @@ evil-collection 是为了增强 Emacs 中的 Evil 模式（即 Vim 模式）而�
 ** org-roam
 *** org-roam
 一个非常优秀的双链笔记在org-mode中的实现，可以对笔记进行关联、管理
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (use-package org-roam
   :ensure t
   :custom
@@ -993,7 +1093,7 @@ evil-collection 是为了增强 Emacs 中的 Evil 模式（即 Vim 模式）而�
 
 *** org-roam-ui
 现在大部分双链笔记都有 =知识图谱= 的概念，可以更加具像化的看出知识点与知识点之间的关系
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (use-package org-roam-ui
   :ensure t
   :after org-roam
@@ -1005,6 +1105,14 @@ evil-collection 是为了增强 Emacs 中的 Evil 模式（即 Vim 模式）而�
 *** org-capture
 #+begin_src emacs-lisp :tangle yes
   ;; custom org-capture templates
+(defun my-org-capture-daily-file ()
+  "Return the path to the daily file for today."
+  (let* ((date (format-time-string "%Y-%m-%d"))
+         (daily-dir (expand-file-name "~/org_blog/note/daily/"))
+         (file (concat daily-dir date ".org")))
+    (unless (file-exists-p daily-dir)
+      (make-directory daily-dir t))
+    file))
   (require 'org-protocol)
   (setq org-agenda-file-note (expand-file-name "~/org_blog/org_note/notes.org"))
   (setq org-capture-templates
@@ -1032,6 +1140,9 @@ evil-collection 是为了增强 Emacs 中的 Evil 模式（即 Vim 模式）而�
           ("x" "Web Collections" entry
           (file+headline org-agenda-file-note "Web")
           "* TODO %?\nCaptured on: %U\nSource: %:annotation\n\n%:initial\n\n** Summary\n\n")
+          ("D" "Daily File Entry" entry
+          (function my-org-capture-daily-file)
+          "* %?\nq  Entered on %U\n  %i\n  %a")
            ))
 
   (global-set-key (kbd "C-c r") 'org-capture)
@@ -1044,6 +1155,24 @@ evil-collection 是为了增强 Emacs 中的 Evil 模式（即 Vim 模式）而�
 
 *  操作优化
 ** 交互
+*** 补全 corfu 代替 company-mode
+#+begin_src emacs-lisp :tangle yes
+(use-package corfu
+  :init
+  (progn
+    (setq corfu-auto t)
+    (setq corfu-cycle t)
+    (setq corfu-quit-at-boundary t)
+    (setq corfu-quit-no-match t)
+    (setq corfu-preview-current nil)
+    (setq corfu-min-width 80)
+    (setq corfu-max-width 100)
+    (setq corfu-auto-delay 0.2)
+    (setq corfu-auto-prefix 1)
+    (setq corfu-on-exact-match nil)
+    (global-corfu-mode)
+    ))
+#+end_src
 *** embark
 绑定 =Ctrl+;= ，可以直接对各种内容进行操作
 #+begin_src emacs-lisp :tangle no
@@ -1121,4 +1250,361 @@ evil-collection 是为了增强 Emacs 中的 Evil 模式（即 Vim 模式）而�
   (setq dirvish-attributes
         '(vc-state subtree-state nerd-icons collapse git-msg file-time file-size))
   (setq dirvish-subtree-state-style 'nerd)
+#+end_src
+
+* PDF
+** pdf-tools
+#+begin_src emacs-lisp :tangle no
+;; 延迟加载 pdf-tools
+(use-package pdf-tools
+  :ensure t
+  :defer t
+  :init
+  ;; 只有在首次打开 PDF 文件时才安装和初始化 pdf-tools
+  (unless (package-installed-p 'pdf-tools)
+    (pdf-tools-install t))
+  ;; 延迟加载特定功能
+  (autoload 'pdf-view-mode "pdf-tools" nil t)
+  (autoload 'pdf-tools-install "pdf-tools" nil t)
+)
+#+end_src
+config
+#+begin_src emacs-lisp :tangle no
+(require 'pdf-annot)
+(define-key pdf-annot-minor-mode-map (kbd "C-a a") 'pdf-annot-add-highlight-markup-annotation) ;; 高亮
+(define-key pdf-annot-minor-mode-map (kbd "C-a s") 'pdf-annot-add-squiggly-markup-annotation) ;; 波浪线
+(define-key pdf-annot-minor-mode-map (kbd "C-a u") 'pdf-annot-add-underline-markup-annotation) ;; 下划线
+(define-key pdf-annot-minor-mode-map (kbd "C-a d") 'pdf-annot-delete) ;; 删除 
+#+end_src
+
+** 导出
+如果在导出图片的时候遇到不能解析的情况，先改变一下emacs当前buffer的编码试试 ~(prefer-coding-system 'utf-8)~
+#+begin_src emacs-lisp :tangle yes
+(setq  org-latex-pdf-process '("tectonic -Z shell-escape %f"))
+(add-to-list 'org-latex-packages-alist '("" "ctex"))
+(add-to-list 'org-latex-packages-alist '("" "seqsplit"))
+;; (setq org-latex-listings 'minted)
+;; (add-to-list 'org-latex-packages-alist '("" "minted"))
+#+end_src
+
+** 导出优化
+#+begin_src emacs-lisp :tangle yes
+(defun my/force-org-rebuild-cache ()
+  "Rebuild the `org-mode' and `org-roam' cache."
+  (interactive)
+  (org-id-update-id-locations)
+  ;; Note: you may need `org-roam-db-clear-all'
+  ;; followed by `org-roam-db-sync'
+  (org-roam-db-sync)
+  (org-roam-update-org-id-locations))
+#+end_src
+
+* 窗口管理
+** resize window
+#+begin_src emacs-lisp :tangle yes
+(use-package resize-window
+  :ensure t
+  :init
+  (defvar resize-window-dispatch-alist
+    '((?n resize-window--enlarge-down " Resize - Expand down" t)
+      (?p resize-window--enlarge-up " Resize - Expand up" t)
+      (?f resize-window--enlarge-horizontally " Resize - horizontally" t)
+      (?b resize-window--shrink-horizontally " Resize - shrink horizontally" t)
+      (?r resize-window--reset-windows " Resize - reset window layout" nil)
+      (?w resize-window--cycle-window-positive " Resize - cycle window" nil)
+      (?W resize-window--cycle-window-negative " Resize - cycle window" nil)
+      (?2 split-window-below " Split window horizontally" nil)
+      (?3 split-window-right " Slit window vertically" nil)
+      (?0 resize-window--delete-window " Delete window" nil)
+      (?K resize-window--kill-other-windows " Kill other windows (save state)" nil)
+      (?y resize-window--restore-windows " (when state) Restore window configuration" nil)
+      (?? resize-window--display-menu " Resize - display menu" nil))
+    "List of actions for `resize-window-dispatch-default.
+Main data structure of the dispatcher with the form:
+\(char function documentation match-capitals\)"))
+#+end_src
+
+** tab bar mode
+emacs 内置的tab
+#+begin_src emacs-lisp :tangle yes
+(use-package tab-bar
+  :ensure nil
+  :init
+  (tab-bar-mode t)
+  (setq tab-bar-new-tab-choice "*scratch*") ;; buffer to show in new tabs
+  (setq tab-bar-close-button-show nil)      ;; hide tab close / X button
+  (setq tab-bar-show 1)                     ;; hide bar if <= 1 tabs open
+  (setq tab-bar-format '(tab-bar-format-tabs tab-bar-separator))
+
+  (custom-set-faces
+   '(tab-bar ((t (:inherit mode-line))))
+   '(tab-bar-tab ((t (:inherit mode-line :foreground "#993644"))))
+   '(tab-bar-tab-inactive ((t (:inherit mode-line-inactive :foreground "black")))))
+
+  (defvar ct/circle-numbers-alist
+    '((0 . "⓪")
+      (1 . "①")
+      (2 . "②")
+      (3 . "③")
+      (4 . "④")
+      (5 . "⑤")
+      (6 . "⑥")
+      (7 . "⑦")
+      (8 . "⑧")
+      (9 . "⑨"))
+    "Alist of integers to strings of circled unicode numbers.")
+
+  (defun ct/tab-bar-tab-name-format-default (tab i)
+    (let ((current-p (eq (car tab) 'current-tab))
+          (tab-num (if (and tab-bar-tab-hints (< i 10))
+                       (alist-get i ct/circle-numbers-alist) "")))
+      (propertize
+       (concat tab-num
+               " "
+               (alist-get 'name tab)
+               (or (and tab-bar-close-button-show
+                        (not (eq tab-bar-close-button-show
+                                 (if current-p 'non-selected 'selected)))
+                        tab-bar-close-button)
+                   "")
+               " ")
+       'face (funcall tab-bar-tab-face-function tab))))
+  (setq tab-bar-tab-name-format-function #'ct/tab-bar-tab-name-format-default)
+  (setq tab-bar-tab-hints t))
+#+end_src
+
+** 居中 minibuffer
+#+begin_src emacs-lisp :tangle yes
+(use-package vertico-posframe
+  :ensure t
+  :custom
+  (vertico-posframe-parameters
+   '((left-fringe . 8)
+     (right-fringe . 8))))
+;; (vertico-posframe-mode 1)
+#+end_src
+** padding
+边距提高视觉体验
+#+begin_src emacs-lisp :tangle yes
+(use-package spacious-padding
+  :ensure t
+  :hook (after-init . spacious-padding-mode))
+
+#+end_src
+
+* 工具
+** pdf tools
+** 待优化
+待优化的代码
+#+begin_src emacs-lisp :tangle no
+
+;; 还需要优化，先这么写着吧！
+;; (defun calculate-nyan-bar-length ()
+;;   "Calculate and set the optimal nyan-bar-length based on the screen width."
+;;   (let* ((screen-width (display-pixel-width)) ; 获取屏幕宽度
+;;          (screen-height (display-pixel-height)) ; 获取屏幕高度
+;;          ;; 假设在 2560x1440 分辨率下 nyan-bar-length 为 166
+;;          ;; 我们可以计算出每个像素占用的 nyan-bar-length 比例
+;;          (base-width 2560)
+;;          (base-nyan-length 166)
+;;          ;; 计算新的 nyan-bar-length
+;;          (new-nyan-length (round (* base-nyan-length (/ (float screen-width) base-width)))))
+;;     (setq nyan-bar-length new-nyan-length)
+;;     (message "Set nyan-bar-length to %d for screen resolution %dx%d" new-nyan-length screen-width screen-height)))
+
+;; ;; 每次启动 Emacs 或者改变屏幕分辨率时调用该函数
+;; (add-hook 'after-init-hook 'calculate-nyan-bar-length)
+;; (add-hook 'window-size-change-functions 'calculate-nyan-bar-length)
+#+end_src
+** 番茄时钟
+有一些地方需要注意，只能在同一个headline下面进行查看番茄时钟以及对应的任务，这里再记录一些常用的东西。 org-clock-report需要用到的。
+:scope subtree：表示生成时钟表的范围是当前 headline 的子树。
+:maxlevel 3：表示显示子树的深度，设置为 3 表示显示到三级子级（可以根据需要调整）。
+#+begin_src emacs-lisp :tangle yes
+(use-package org-pomodoro
+  :ensure t
+  :config
+  (setq org-pomodoro-length 25) ;; 设置一个番茄的时间为25分钟
+  (setq org-pomodoro-short-break-length 5) ;; 设置短暂休息时间为5分钟
+  (setq org-pomodoro-long-break-length 15) ;; 设置长时间休息时间为15分钟
+  )
+
+(global-set-key (kbd "C-c p") 'org-pomodoro) ;; 绑定快捷键
+#+end_src
+** snippetes
+#+begin_src emacs-lisp :tangle yes
+(use-package yasnippet
+  :ensure t
+  :hook ((prog-mode . yas-minor-mode)
+         (org-mode . yas-minor-mode))
+  :init
+  :config
+  (progn
+    (setq hippie-expand-try-functions-list
+          '(yas/hippie-try-expand
+            try-complete-file-name-partially
+            try-expand-all-abbrevs
+            try-expand-dabbrev
+            try-expand-dabbrev-all-buffers
+            try-expand-dabbrev-from-kill
+            try-complete-lisp-symbol-partially
+            try-complete-lisp-symbol))))
+
+(use-package yasnippet-snippets
+  :ensure t
+  :after yasnippet)
+#+end_src
+* Blog
+
+* denote
+** denote 本体
+使用时需要含有 =xargs= 这个命令，windows可以使用包管理器来下载
+#+begin_src emacs-lisp :tangle yes
+(require 'denote)
+
+(use-package denote
+  :ensure t)
+
+(use-package consult-notes
+  :commands (consult-notes
+             consult-notes-search-in-all-notes
+             consult-notes-org-roam-find-node
+             consult-notes-org-roam-find-node-relation)
+  :bind ("C-c d f" . consult-notes)
+  :config
+  (setq consult-notes-sources
+        '(("denote"          ?d "~/denotes")
+          ))
+  (consult-notes-org-roam-mode) ; Set org-roam integration
+  )
+
+;; Remember to check the doc strings of those variables.
+(setq denote-directory (expand-file-name "~/denotes/"))
+(setq denote-save-buffers nil)
+(setq denote-known-keywords '("emacs" "philosophy" "politics" "economics"))
+(setq denote-infer-keywords t)
+(setq denote-sort-keywords t)
+(setq denote-file-type nil) ; Org is the default, set others here
+(setq denote-prompts '(title keywords))
+(setq denote-excluded-directories-regexp nil)
+(setq denote-excluded-keywords-regexp nil)
+(setq denote-rename-confirmations '(rewrite-front-matter modify-file-name))
+
+;; Pick dates, where relevant, with Org's advanced interface:
+(setq denote-date-prompt-use-org-read-date t)
+
+
+;; Read this manual for how to specify `denote-templates'.  We do not
+;; include an example here to avoid potential confusion.
+
+
+(setq denote-date-format nil) ; read doc string
+
+;; By default, we do not show the context of links.  We just display
+;; file names.  This provides a more informative view.
+(setq denote-backlinks-show-context t)
+
+;; Also see `denote-backlinks-display-buffer-action' which is a bit
+;; advanced.
+
+;; If you use Markdown or plain text files (Org renders links as buttons
+;; right away)
+(add-hook 'text-mode-hook #'denote-fontify-links-mode-maybe)
+
+;; We use different ways to specify a path for demo purposes.
+(setq denote-dired-directories
+      (list denote-directory
+            (thread-last denote-directory (expand-file-name "attachments"))
+            (expand-file-name "~/Documents/books")))
+
+;; Generic (great if you rename files Denote-style in lots of places):
+;; (add-hook 'dired-mode-hook #'denote-dired-mode)
+;;
+;; OR if only want it in `denote-dired-directories':
+(add-hook 'dired-mode-hook #'denote-dired-mode-in-directories)
+
+
+;; Automatically rename Denote buffers using the `denote-rename-buffer-format'.
+(denote-rename-buffer-mode 1)
+
+;; Denote DOES NOT define any key bindings.  This is for the user to
+;; decide.  For example:
+(let ((map global-map))
+  (define-key map (kbd "C-c n n") #'denote)
+  (define-key map (kbd "C-c n c") #'denote-region) ; "contents" mnemonic
+  (define-key map (kbd "C-c n N") #'denote-type)
+  (define-key map (kbd "C-c n d") #'denote-date)
+  (define-key map (kbd "C-c n z") #'denote-signature) ; "zettelkasten" mnemonic
+  (define-key map (kbd "C-c n s") #'denote-subdirectory)
+  (define-key map (kbd "C-c n t") #'denote-template)
+  ;; If you intend to use Denote with a variety of file types, it is
+  ;; easier to bind the link-related commands to the `global-map', as
+  ;; shown here.  Otherwise follow the same pattern for `org-mode-map',
+  ;; `markdown-mode-map', and/or `text-mode-map'.
+  (define-key map (kbd "C-c n i") #'denote-link) ; "insert" mnemonic
+  (define-key map (kbd "C-c n I") #'denote-add-links)
+  (define-key map (kbd "C-c n b") #'denote-backlinks)
+  (define-key map (kbd "C-c n f f") #'denote-find-link)
+  (define-key map (kbd "C-c n f b") #'denote-find-backlink)
+  ;; Note that `denote-rename-file' can work from any context, not just
+  ;; Dired bufffers.  That is why we bind it here to the `global-map'.
+  (define-key map (kbd "C-c n r") #'denote-rename-file)
+  (define-key map (kbd "C-c n R") #'denote-rename-file-using-front-matter))
+
+;; Key bindings specifically for Dired.
+(let ((map dired-mode-map))
+  (define-key map (kbd "C-c C-d C-i") #'denote-link-dired-marked-notes)
+  (define-key map (kbd "C-c C-d C-r") #'denote-dired-rename-files)
+  (define-key map (kbd "C-c C-d C-k") #'denote-dired-rename-marked-files-with-keywords)
+  (define-key map (kbd "C-c C-d C-R") #'denote-dired-rename-marked-files-using-front-matter))
+
+(with-eval-after-load 'org-capture
+  (setq denote-org-capture-specifiers "%l\n%i\n%?")
+  (add-to-list 'org-capture-templates
+               '("n" "New note (with denote.el)" plain
+                 (file denote-last-path)
+                 #'denote-org-capture
+                 :no-save t
+                 :immediate-finish nil
+                 :kill-buffer t
+                 :jump-to-captured t)))
+
+;; Also check the commands `denote-link-after-creating',
+;; `denote-link-or-create'.  You may want to bind them to keys as well.
+
+
+;; If you want to have Denote commands available via a right click
+;; context menu, use the following and then enable
+;; `context-menu-mode'.
+(add-hook 'context-menu-functions #'denote-context-menu)
+#+end_src
+
+** consult-denotes
+#+begin_src emacs-lisp :tangle yes
+(use-package consult-notes
+  :commands (consult-notes
+             consult-notes-search-in-all-notes
+             consult-notes-org-roam-find-node
+             consult-notes-org-roam-find-node-relation)
+  :bind ("C-c d f" . consult-notes)
+  :config
+  (setq consult-notes-sources
+        '(("denote"          ?d "~/denotes")
+          ))
+  (consult-notes-org-roam-mode) ; Set org-roam integration
+  )
+
+(require 'denote-menu)
+#+end_src
+** denote-menu
+#+begin_src emacs-lisp :tangle yes
+(use-package denote-menu
+  :ensure t)
+(global-set-key (kbd "C-c z") #'list-denotes)
+
+(define-key denote-menu-mode-map (kbd "c") #'denote-menu-clear-filters)
+(define-key denote-menu-mode-map (kbd "/ r") #'denote-menu-filter)
+(define-key denote-menu-mode-map (kbd "/ k") #'denote-menu-filter-by-keyword)
+(define-key denote-menu-mode-map (kbd "/ o") #'denote-menu-filter-out-keyword)
+(define-key denote-menu-mode-map (kbd "e") #'denote-menu-export-to-dired)
 #+end_src
