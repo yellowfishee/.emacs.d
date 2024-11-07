@@ -8,3 +8,4 @@ transient/
 tree-sitter/
 org-persist/
 emacs_backtrace.txt
+eaf/
