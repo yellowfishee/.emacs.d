@@ -49,15 +49,14 @@
       '("~/.emacs.d/snippets"                 ;; personal snippets
         ))
 
-(use-package org-zettel-ref-mode
-  :ensure t  ; 如果通过包管理器安装
-  :init
-  (setq org-zettel-ref-overview-directory "~/denotes/overviews")
-  (setq org-zettel-ref-reference-folder "~/denotes/ref/")
-  (setq org-zettel-ref-temp-folder "~/denotes/temp/")
-  (setq org-zettel-ref-mode-type 'denote)
-  :config
-  (setq org-zettel-ref-quick-markup-key "C-c m"))
+(add-to-list 'load-path "~/.emacs.d/github/org-zettel-ref-mode")
+(add-to-list 'load-path "~/.emacs.d/github/")
+(setq org-zettel-ref-mode-type 'denote)
+(setq org-zettel-ref-quick-markup-key "C-c m")
+(setq org-zettel-ref-overview-directory "~/denotes/overviews")
+(setq org-zettel-ref-reference-folder "~/denotes/ref/")
+(setq org-zettel-ref-temp-folder "~/denotes/temp/")
 
+(require 'org-zettel-ref-mode)
 (server-mode 1)
 
