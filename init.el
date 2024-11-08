@@ -51,12 +51,13 @@
 
 (add-to-list 'load-path "~/.emacs.d/github/org-zettel-ref-mode")
 (add-to-list 'load-path "~/.emacs.d/github/")
+
+(require 'org-zettel-ref-mode)
 (setq org-zettel-ref-mode-type 'denote)
 (setq org-zettel-ref-quick-markup-key "C-c m")
 (setq org-zettel-ref-overview-directory "~/denotes/overviews")
 (setq org-zettel-ref-reference-folder "~/denotes/ref/")
 (setq org-zettel-ref-temp-folder "~/denotes/temp/")
 
-(require 'org-zettel-ref-mode)
 (server-mode 1)
 
