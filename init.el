@@ -57,7 +57,30 @@
 (setq org-zettel-ref-quick-markup-key "C-c m")
 (setq org-zettel-ref-overview-directory "~/denotes/overviews")
 (setq org-zettel-ref-reference-folder "~/denotes/ref/")
-(setq org-zettel-ref-temp-folder "~/denotes/temp/")
+
+(setq org-zettel-ref-python-environment 'system)  ; 或 'system, 'venv
+(setq org-zettel-ref-python-file "~/.emacs.d/github/org-zettel-ref-mode/convert-to-org.py")
+(setq org-zettel-ref-temp-folder "~/Documents/temp")
+(setq org-zettel-ref-archive-folder "~/Documents/Collect/archives/")
+(setq org-zettel-ref-debug nil)
+(setq org-zettel-ref-highlight-types
+      (append org-zettel-ref-highlight-types
+             '(("warning" . (:char "w"
+                           :face (:background "#FFA726" 
+                                 :foreground "#000000" 
+                                 :extend t)
+                           :name "warning"
+                           :prefix "⚠️️"))
+               ("success" . (:char "s"
+                           :face (:background "#66BB6A" 
+                                 :foreground "#FFFFFF" 
+                                 :extend t)
+                           :name "success"
+                           :prefix "✅"))
+	       )))
+(require 'saveplace)
+(setq save-place t) ;; 启用保存位置功能
+(add-hook 'after-init-hook #'save-place-mode) ;; 开启全局的 save-place 模式
 
 (server-mode 1)
 
