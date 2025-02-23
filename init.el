@@ -10,6 +10,8 @@
 (org-babel-load-file
     (expand-file-name "config.org" user-emacs-directory))
 
+(setq org-hide-emphasis-markers t)
+
 ;; 输入法实在是太占地方了，使用这个方法来加载输入法
 (add-to-list 'load-path "~/.emacs.d/lisp/")
 ;; (add-to-list 'load-path "~/.emacs.d/github")
@@ -51,6 +53,12 @@
 
 (add-to-list 'load-path "~/.emacs.d/github/org-zettel-ref-mode")
 (add-to-list 'load-path "~/.emacs.d/github/")
+
+;; (add-to-list 'load-path "~/.emacs.d/github/org-visual-outline/")
+;; (require 'org-dynamic-bullets)
+;; (require 'org-visual-indent)
+;; (org-dynamic-bullets-mode)
+;; (org-visual-indent-mode)
 
 (require 'org-zettel-ref-mode)
 (setq org-zettel-ref-mode-type 'denote)
