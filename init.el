@@ -90,5 +90,9 @@
 (setq save-place t) ;; 启用保存位置功能
 (add-hook 'after-init-hook #'save-place-mode) ;; 开启全局的 save-place 模式
 
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((dot . t)))
+
 (server-mode 1)
 
